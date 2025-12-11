@@ -1,4 +1,5 @@
-<?php require_once '../templates/header.php'; ?>
+<?php  // app
+require_once '../templates/header.php'; ?>
 
 <div class="container">
     <h2>Login</h2>
