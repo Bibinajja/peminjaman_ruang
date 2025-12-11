@@ -8,7 +8,7 @@ class Admin extends Controller
     }
 
     // -------------------------
-    // CRUD Ruang
+    // CRUD untuk Ruang
     // -------------------------
     public function ruang()
     {
