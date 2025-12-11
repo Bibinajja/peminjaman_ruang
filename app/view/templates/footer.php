@@ -1,0 +1,8 @@
+</main>
+<footer>
+    <p>&copy; 2023 Sistem Peminjaman Ruang. All rights reserved.</p>
+</footer>
+<script src="/assets/js/script.js"></script>
+</body>
+
+</html>
