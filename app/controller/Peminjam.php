@@ -56,8 +56,23 @@ class Peminjam extends Controller
         header("Location:" . BASEURL . "/peminjam/riwayat");
     }
 
-    public function form_pengembalian($id)
+    public function form_pengembalian($id = null)
     {
+        //coba
+        // Jika ID kosong, tetap tampilkan halaman kosong
+        if ($id === null) {
+            // load view tanpa data
+            $this->view('peminjam/form_pengembalian', [
+                'title' => 'Form Pengembalian',
+                'data'  => null
+            ]);
+            return;
+        }
+
+        // if ($id === null) {
+        //     echo "ID tidak ditemukan!";
+        //     return;
+        // }
         $data = $this->model("Peminjaman_model")->getById($id);
         $this->view('peminjam/form_pengembalian', $data);
     }

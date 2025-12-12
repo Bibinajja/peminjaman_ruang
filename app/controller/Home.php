@@ -11,12 +11,16 @@ class Home extends Controller
 
     public function login()
     {
+
         $this->view('home/login');
+        $this->view('../view/templates/footer');
     }
 
     public function login_process()
     {
-        $username = $_POST['username'];
+        // echo "cek eror login";
+
+        $username = $_POST['email'];
         $password = $_POST['password'];
 
         $user = $this->model('User_model')->login($username, $password);
@@ -48,8 +52,8 @@ class Home extends Controller
     public function register_process()
     {
         $data = [
-            'nama'      => $_POST['nama'],
-            'username'  => $_POST['username'],
+            // 'username'  => $_POST['username'],
+            'nama'      => $_POST['email'],
             'password'  => $_POST['password'],
             'role'      => 'peminjam'  // otomatis peminjam
         ];
