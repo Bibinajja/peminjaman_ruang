@@ -43,7 +43,7 @@ class Admin extends Controller
         $this->view('admin/manajemen_user', $data);
     }
 
-    public function tambah_user()
+    public function tambah_user() //untuk apa?
     {
         $this->model("User_model")->add($_POST);
         header("Location:" . BASEURL . "/admin/user");
@@ -113,9 +113,29 @@ class Admin extends Controller
     // -------------------------
     public function konfirmasi_pengembalian()
     {
-        $data = $this->model("Peminjaman_model")->getPengembalianPending();
+        //blackbox
+        // $data = $this->model("Peminjaman_model")->getPengembalianPending();
+        //gpt
+        $data = $this->model("Peminjaman_model")->getPengembalian();
+
         $this->view('admin/konfirmasi_pengembalian', $data);
     }
+
+    //gpt
+    //     public function konfirmasi_pengembalian()
+    // {
+    //     $pengembalian = $this->model("Peminjaman_model")->getPengembalianPending();
+    //     $this->view('admin/konfirmasi_pengembalian', ['pengembalian' => $pengembalian]);
+    // }
+
+    public function setujui_pengembalian($id)
+    {
+        $this->model("Peminjaman_model")->approvePengembalian($id);
+        header("Location: " . BASEURL . "/admin/konfirmasi_pengembalian");
+    }
+
+
+
 
     public function proses_pengembalian()
     {
@@ -127,3 +147,21 @@ class Admin extends Controller
         header("Location:" . BASEURL . "/admin/konfirmasi_pengembalian");
     }
 }
+// gpt
+// public function proses_pengembalian()
+// {
+//     $id = $_POST['id'];
+//     $action = $_POST['action'];
+
+//     $model = $this->model('Peminjaman_model');
+
+//     if ($action == "approve") {
+//         $model->approvePengembalian($id);
+//     } else if ($action == "reject") {
+//         $reason = $_POST['reason'];
+//         $model->rejectPengembalian($id, $reason);
+//     }
+
+//     header("Location: " . BASEURL . "/admin/konfirmasi_pengembalian");
+//     exit;
+// }

@@ -1,5 +1,3 @@
-<?php require_once '../templates/header.php'; ?>
-
 <div class="container">
     <h2>Form Pengembalian Ruang</h2>
     <form action="/peminjam/form_pengembalian" method="POST" enctype="multipart/form-data">
@@ -20,5 +18,3 @@
         <button type="submit" class="btn">Ajukan Pengembalian</button>
     </form>
 </div>
-
-<?php require_once '../templates/footer.php'; ?>
