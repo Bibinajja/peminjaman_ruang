@@ -5,7 +5,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 
-// Konfigurasi URL Dasar (Sesuaikan dengan folder XAMPP htdocs Anda)
+// Konfigurasi URL Dasar
 // Contoh: http://localhost/nama_folder_proyek/public
 // define('BASEURL', 'http://localhost/peminjaman_ruang/public/');
 
