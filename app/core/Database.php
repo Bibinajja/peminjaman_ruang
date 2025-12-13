@@ -4,14 +4,15 @@ class Database
 {
     private $host = 'localhost';
     private $user = 'root';
-    private $pass = ''; 
-    private $db_name = 'db_sistem_peminjaman'; 
+    private $pass = '';
+    private $db_name = 'db_sistem_peminjaman';
 
     private $dbh; // Database Handler
     private $stmt; // Statement
 
     public function __construct()
     {
+        // die("DATABASE CONSTRUCTOR TERPANGGIL");
         // Data Source Name (DSN)
         $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->db_name;
 

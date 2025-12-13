@@ -44,24 +44,59 @@ class Home extends Controller
 
     public function register()
     {
-        $this->view('templates/header');
         $this->view('home/register');
         $this->view('templates/footer');
     }
 
     public function register_process()
     {
-        $data = [
-            // 'username'  => $_POST['username'],
-            'nama'      => $_POST['email'],
-            'password'  => $_POST['password'],
-            'role'      => 'peminjam'  // otomatis peminjam
-        ];
+        // Ambil data dari form
+        $nama     = trim($_POST['nama']);
+        $email    = trim($_POST['email']);
+        $password = $_POST['password'];
+        $confirm  = $_POST['password_confirm'];
 
-        $this->model('User_model')->register($data);
+        // 1. Validasi kosong
+        if ($nama == '' || $email == '' || $password == '' || $confirm == '') {
+            $_SESSION['error'] = "Semua field wajib diisi!";
+            header("Location: " . BASEURL . "/home/register");
+            exit;
+        }
 
-        header("Location:" . BASEURL . "/home/login");
+        // 2. Validasi password
+        if ($password !== $confirm) {
+            $_SESSION['error'] = "Password tidak sama!";
+            header("Location: " . BASEURL . "/home/register");
+            exit;
+        }
+
+        // 3. Cek email unik
+        $userModel = $this->model('User_model');
+        if ($userModel->getUserByEmail($email)) {
+            $_SESSION['error'] = "Email sudah terdaftar!";
+            header("Location: " . BASEURL . "/home/register");
+            exit;
+        }
+
+        // 4. Hash password
+        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+        // 5. Insert user (role default PEMINJAM)
+        $insert = $userModel->register([
+            'nama'     => $nama,
+            'email'    => $email,
+            'password' => $passwordHash
+        ]);
+
+        if ($insert) {
+            $_SESSION['success'] = "Registrasi berhasil, silakan login.";
+            header("Location: " . BASEURL . "/home/login");
+        } else {
+            $_SESSION['error'] = "Registrasi gagal!";
+            header("Location: " . BASEURL . "/home/register");
+        }
     }
+
 
     public function logout()
     {
