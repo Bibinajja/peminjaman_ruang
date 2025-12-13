@@ -64,15 +64,17 @@ class Admin extends Controller
     // -------------------------
     // Konfirmasi Peminjaman Tahap 1
     // -------------------------
-    public function konfirmasi_peminjaman()
-    {
-        $data = $this->model("Peminjaman_model")->getPending();
-        $this->view('admin/konfirmasi_peminjaman', $data);
-    }
+   public function konfirmasi_peminjaman()
+{
+    $data['pengembalian'] = $this->model("Peminjaman_model")->getPending();
+    $this->view('admin/konfirmasi_peminjaman', $data);
+}
+
 
     public function detail_peminjaman($id)
     {
         $data = $this->model("Peminjaman_model")->getById($id);
+        
         $this->view('admin/detail_peminjaman', $data);
     }
 
