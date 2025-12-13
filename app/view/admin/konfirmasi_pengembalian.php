@@ -49,6 +49,8 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="/admin/konfirmasi_pengembalian" method="post">
+                                        <!-- gpt
+                                     <form action="<?= BASEURL ?>/admin/proses_pengembalian" method="post"> -->
                                         <div class="modal-body">
                                             <input type="hidden" name="id" value="<?php echo $item['id']; ?>">
                                             <input type="hidden" name="action" value="reject">

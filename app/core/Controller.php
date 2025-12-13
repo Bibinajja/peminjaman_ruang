@@ -1,10 +1,12 @@
 <?php
 
-class Controller {
-    // Method untuk memanggil View
+class Controller
+{
+    // Method View
     // Parameter: $view (nama file view), $data (data yang dikirim ke view)
     public function view($view, $data = [])
     {
+
         // Cek apakah file view ada
         if (file_exists('../app/view/' . $view . '.php')) {
             require_once '../app/view/' . $view . '.php';
@@ -14,7 +16,7 @@ class Controller {
         }
     }
 
-    // Method untuk memanggil Model
+    // Method Model
     public function model($model)
     {
         // Cek apakah file model ada

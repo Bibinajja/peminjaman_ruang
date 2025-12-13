@@ -1,16 +1,18 @@
 <?php
 
-class Database {
+class Database
+{
     private $host = 'localhost';
     private $user = 'root';
-    private $pass = ''; // Isi password database Anda jika ada
-    private $db_name = 'db_sistem_peminjaman'; // Sesuai nama database di gambar
+    private $pass = '';
+    private $db_name = 'db_sistem_peminjaman';
 
     private $dbh; // Database Handler
     private $stmt; // Statement
 
     public function __construct()
     {
+        // die("DATABASE CONSTRUCTOR TERPANGGIL");
         // Data Source Name (DSN)
         $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->db_name;
 
@@ -21,7 +23,7 @@ class Database {
 
         try {
             $this->dbh = new PDO($dsn, $this->user, $this->pass, $option);
-        } catch(PDOException $e) {
+        } catch (PDOException $e) {
             die($e->getMessage());
         }
     }
@@ -35,8 +37,8 @@ class Database {
     // Fungsi untuk binding data (mencegah SQL Injection)
     public function bind($param, $value, $type = null)
     {
-        if(is_null($type)) {
-            switch(true) {
+        if (is_null($type)) {
+            switch (true) {
                 case is_int($value):
                     $type = PDO::PARAM_INT;
                     break;

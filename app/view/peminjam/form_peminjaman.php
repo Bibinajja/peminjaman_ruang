@@ -1,5 +1,3 @@
-<?php require_once '../templates/header.php'; ?>
-
 <div class="container">
     <h2>Form Peminjaman Ruang</h2>
     <form action="/peminjam/form_peminjaman" method="POST">
@@ -18,5 +16,3 @@
         <button type="submit" class="btn">Ajukan Peminjaman</button>
     </form>
 </div>
-
-<?php require_once '../templates/footer.php'; ?>
