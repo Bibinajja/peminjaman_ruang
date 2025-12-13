@@ -1,99 +1,51 @@
 <?php
 
-class Home extends Controller
-{
+class Home extends Controller {
     public function index()
     {
-        // $this->view('templates/header');
-        $this->view('home/index');
+        $data['judul'] = 'Sistem Peminjaman Ruang';
+        $this->view('home/index', $data);
         $this->view('templates/footer');
     }
 
     public function login()
     {
-
-        $this->view('home/login');
-        $this->view('../view/templates/footer');
-    }
-
-    public function login_process()
-    {
-        // echo "cek eror login";
-
-        $username = $_POST['email'];
-        $password = $_POST['password'];
-
-        $user = $this->model('User_model')->login($username, $password);
-
-        if (!$user) {
-            $_SESSION['error'] = "Username atau password salah!";
-            header("Location: " . BASEURL . "/home/login");
-            exit;
-        }
-
-        $_SESSION['user'] = $user;
-
-        if ($user['role'] == 'admin') {
-            header("Location: " . BASEURL . "/admin");
-        } elseif ($user['role'] == 'warek') {
-            header("Location: " . BASEURL . "/warek");
-        } else {
-            header("Location: " . BASEURL . "/peminjam");
-        }
-    }
-
-    public function register()
-    {
-        $this->view('home/register');
+        $data['judul'] = 'Login Page';
+        $this->view('templates/header', $data);
+        $this->view('home/login', $data);
         $this->view('templates/footer');
     }
 
-    public function register_process()
+    public function auth()
     {
-        // Ambil data dari form
-        $nama     = trim($_POST['nama']);
-        $email    = trim($_POST['email']);
-        $password = $_POST['password'];
-        $confirm  = $_POST['password_confirm'];
+        // Proses Login u ser
+        if(isset($_POST['email']) && isset($_POST['password'])) {
+            $user = $this->model('User_model')->getUserByEmail($_POST['email']);
+            
+            // Cek user ada & password cocok (Disarankan pakai password_verify jika di hash)
+            // Disini saya pakai contoh perbandingan langsung untuk simplifikasi
+            if($user && $_POST['password'] == $user['password']) {
+                
+                // Set Session
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['nama'] = $user['nama'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['loggedin'] = true;
 
-        // 1. Validasi kosong
-        if ($nama == '' || $email == '' || $password == '' || $confirm == '') {
-            $_SESSION['error'] = "Semua field wajib diisi!";
-            header("Location: " . BASEURL . "/home/register");
-            exit;
-        }
-
-        // 2. Validasi password
-        if ($password !== $confirm) {
-            $_SESSION['error'] = "Password tidak sama!";
-            header("Location: " . BASEURL . "/home/register");
-            exit;
-        }
-
-        // 3. Cek email unik
-        $userModel = $this->model('User_model');
-        if ($userModel->getUserByEmail($email)) {
-            $_SESSION['error'] = "Email sudah terdaftar!";
-            header("Location: " . BASEURL . "/home/register");
-            exit;
-        }
-
-        // 4. Hash password
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-
-        // 5. Insert user (role default PEMINJAM)
-        $insert = $userModel->register([
-            'nama'     => $nama,
-            'email'    => $email,
-            'password' => $passwordHash
-        ]);
-
-        if ($insert) {
-            $_SESSION['success'] = "Registrasi berhasil, silakan login.";
-            header("Location: " . BASEURL . "/home/login");
-        } else {
-            $_SESSION['error'] = "Registrasi gagal!";
-            header("Location: " . BASEURL . "/home/register");
+                // Redirect sesuai Role
+                if($user['role'] == 'admin') {
+                    header('Location: ' . BASEURL . '/admin');
+                } elseif ($user['role'] == 'warek') {
+                    header('Location: ' . BASEURL . '/warek');
+                } else {
+                    header('Location: ' . BASEURL . '/peminjam');
+                }
+                exit;
+            } else {
+                // Login Gagal memsukkan user 
+                header('Location: ' . BASEURL . '/home/login');
+                exit;
+            }
         }
     }
 
@@ -101,6 +53,7 @@ class Home extends Controller
     public function logout()
     {
         session_destroy();
-        header("Location: " . BASEURL . "/");
+        header('Location: ' . BASEURL . '/home');
+        exit;
     }
 }
