@@ -1,67 +1,58 @@
 <?php
 
-class Home extends Controller
-{
+class Home extends Controller {
     public function index()
     {
-        // $this->view('templates/header');
-        $this->view('home/index');
+        $data['judul'] = 'Sistem Peminjaman Ruang';
+        $this->view('home/index', $data);
         $this->view('templates/footer');
     }
 
     public function login()
     {
-        $this->view('home/login');
-    }
-
-    public function login_process()
-    {
-        $username = $_POST['username'];
-        $password = $_POST['password'];
-
-        $user = $this->model('User_model')->login($username, $password);
-
-        if (!$user) {
-            $_SESSION['error'] = "Username atau password salah!";
-            header("Location: " . BASEURL . "/home/login");
-            exit;
-        }
-
-        $_SESSION['user'] = $user;
-
-        if ($user['role'] == 'admin') {
-            header("Location: " . BASEURL . "/admin");
-        } elseif ($user['role'] == 'warek') {
-            header("Location: " . BASEURL . "/warek");
-        } else {
-            header("Location: " . BASEURL . "/peminjam");
-        }
-    }
-
-    public function register()
-    {
-        $this->view('templates/header');
-        $this->view('home/register');
+        $data['judul'] = 'Login Page';
+        $this->view('templates/header', $data);
+        $this->view('home/login', $data);
         $this->view('templates/footer');
     }
 
-    public function register_process()
+    public function auth()
     {
-        $data = [
-            'nama'      => $_POST['nama'],
-            'username'  => $_POST['username'],
-            'password'  => $_POST['password'],
-            'role'      => 'peminjam'  // otomatis peminjam
-        ];
+        // Proses Login u ser
+        if(isset($_POST['email']) && isset($_POST['password'])) {
+            $user = $this->model('User_model')->getUserByEmail($_POST['email']);
+            
+            // Cek user ada & password cocok (Disarankan pakai password_verify jika di hash)
+            // Disini saya pakai contoh perbandingan langsung untuk simplifikasi
+            if($user && $_POST['password'] == $user['password']) {
+                
+                // Set Session
+                $_SESSION['user_id'] = $user['user_id'];
+                $_SESSION['nama'] = $user['nama'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['loggedin'] = true;
 
-        $this->model('User_model')->register($data);
-
-        header("Location:" . BASEURL . "/home/login");
+                // Redirect sesuai Role
+                if($user['role'] == 'admin') {
+                    header('Location: ' . BASEURL . '/admin');
+                } elseif ($user['role'] == 'warek') {
+                    header('Location: ' . BASEURL . '/warek');
+                } else {
+                    header('Location: ' . BASEURL . '/peminjam');
+                }
+                exit;
+            } else {
+                // Login Gagal memsukkan user 
+                header('Location: ' . BASEURL . '/home/login');
+                exit;
+            }
+        }
     }
 
     public function logout()
     {
         session_destroy();
-        header("Location: " . BASEURL . "/");
+        header('Location: ' . BASEURL . '/home');
+        exit;
     }
 }
