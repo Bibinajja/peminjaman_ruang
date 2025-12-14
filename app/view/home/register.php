@@ -11,14 +11,18 @@ $success = '';
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Get form data
+        // =========================
+        // AMBIL DATA FORM
+        // =========================
         $nama = trim($_POST['nama'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         $confirmPassword = $_POST['confirmPassword'] ?? '';
         $terms = isset($_POST['terms']);
 
-        // Validation
+        // =========================
+        // VALIDASI
+        // =========================
         if (empty($nama)) {
             throw new Exception('Nama lengkap harus diisi');
         }
@@ -63,50 +67,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception('Anda harus menyetujui syarat & ketentuan');
         }
 
-        // Create database connection
-        $database = new Database();
-        $conn = $database->getConnection();
+        // =========================
+        // KONEKSI DATABASE
+        // =========================
+        $db = new Database();
 
+        $db->query("SELECT user_id FROM users WHERE email = :email");
+        $db->bind(':email', $email);
+        $dataUser = $db->single();
 
-        // Check if email already exists
-        $checkEmailQuery = "SELECT user_id FROM users WHERE email = :email";
-        $checkStmt = $conn->prepare($checkEmailQuery);
-        $checkStmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $checkStmt->execute();
-
-        if ($checkStmt->rowCount() > 0) {
+        if ($dataUser) {
             throw new Exception('Email sudah terdaftar. Silakan gunakan email lain.');
         }
 
-        // Set default role as 'peminjam' (security: no user input for role)
+        // ROLE DEFAULT
         $role = 'peminjam';
 
-        // Insert new user (password disimpan langsung tanpa hashing untuk pemula)
-        $insertQuery = "INSERT INTO users (nama, email, password, role, created_at) 
-                        VALUES (:nama, :email, :password, :role, NOW())";
-        
-        $insertStmt = $conn->prepare($insertQuery);
-        $insertStmt->bindParam(':nama', $nama, PDO::PARAM_STR);
-        $insertStmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $insertStmt->bindParam(':password', $password, PDO::PARAM_STR);
-        $insertStmt->bindParam(':role', $role, PDO::PARAM_STR);
+        // INSERT USER
+       
+        $db->query("
+            INSERT INTO users (nama, email, password, role, created_at)
+            VALUES (:nama, :email, :password, :role, NOW())
+        ");
 
-        if ($insertStmt->execute()) {
+        $db->bind(':nama', $nama);
+        $db->bind(':email', $email);
+        $db->bind(':password', $password); // (belum hashing)
+        $db->bind(':role', $role);
+
+        $db->execute();
+
+        if ($db->rowCount() > 0) {
             $success = 'Registrasi berhasil! Silakan login dengan akun Anda.';
-            // Redirect to login after 2 seconds
             header("refresh:2;url=login.php");
         } else {
-            throw new Exception('Gagal menyimpan data. Silakan coba lagi.');
+            throw new Exception('Registrasi gagal. Silakan coba lagi.');
         }
 
     } catch (Exception $e) {
         $error = $e->getMessage();
-    } catch (PDOException $e) {
-        $error = 'Terjadi kesalahan database. Silakan coba lagi.';
-        error_log('Registration Error: ' . $e->getMessage());
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -156,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="register-right">
             <div class="register-card">
                 <!-- Back Button -->
-                <a href="index.php" class="back-btn">
+                <a href="../../../index.php" class="back-btn">
                     <i class="fas fa-arrow-left"></i>
                     <span>Kembali</span>
                 </a>
