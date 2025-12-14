@@ -16,6 +16,13 @@ class Home extends Controller
         $this->view('home/login', $data);
         $this->view('templates/footer');
     }
+    public function register()
+    {
+        $data['judul'] = 'Login Page';
+
+        $this->view('home/login', $data);
+        $this->view('templates/footer');
+    }
 
     public function auth()
     {

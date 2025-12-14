@@ -74,7 +74,7 @@
 
                 <p class="text-center mt-3">
                     Belum punya akun?
-                    <a href="<?= BASEURL ?>/peminjam/register">Daftar</a>
+                    <a href="<?= BASEURL ?>/home/register">Daftar</a>
                 </p>
 
             </div>
