@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="../../../public/assets/css/landing.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar" id="navbar">
@@ -22,7 +24,7 @@
                 <li><a href="#contact" class="nav-link">Contact</a></li>
             </ul>
             <div class="nav-right">
-                <a href="app/view/home/login.php" class="profile-icon">
+                <a href="<?= BASEURL ?>/home/login" class="profile-icon">
                     <i class="fas fa-user-circle"></i>
                 </a>
                 <div class="hamburger" id="hamburger">
@@ -45,11 +47,11 @@
                     <span class="cursor">|</span>
                 </div>
                 <p class="hero-description">
-                    MyRoom hadir sebagai bukti nyata komitmen ITS Mandala dalam menerapkan solusi teknologi 
-                    untuk kehidupan kampus yang lebih baik. Gunakan MyRoom sekarang dan rasakan kemudahan 
+                    MyRoom hadir sebagai bukti nyata komitmen ITS Mandala dalam menerapkan solusi teknologi
+                    untuk kehidupan kampus yang lebih baik. Gunakan MyRoom sekarang dan rasakan kemudahan
                     mengelola ruang di ujung jari Anda!
                 </p>
-                <a href="app/view/home/login.php" class="btn btn-primary">
+                <a href="<?= BASEURL ?>/home/login" class="btn btn-primary">
                     <i class="fas fa-sign-in-alt"></i> Login Sekarang
                 </a>
             </div>
@@ -69,11 +71,11 @@
                         <i class="fas fa-university"></i>
                     </div>
                     <p class="about-text">
-                        Institut Teknologi dan Sains Mandala (ITSM) Jember adalah perguruan tinggi swasta 
-                        terakreditasi "Baik Sekali" yang berlokasi di Jember, Jawa Timur. Didirikan pada 
-                        tahun 1978, ITSM berfokus pada pendidikan di bidang Ekonomi, Bisnis, Sains, dan 
-                        Teknologi. Kami berdedikasi untuk menghasilkan lulusan yang inovatif, kompeten, 
-                        dan siap bersaing di pasar global melalui program pendidikan berkualitas dan 
+                        Institut Teknologi dan Sains Mandala (ITSM) Jember adalah perguruan tinggi swasta
+                        terakreditasi "Baik Sekali" yang berlokasi di Jember, Jawa Timur. Didirikan pada
+                        tahun 1978, ITSM berfokus pada pendidikan di bidang Ekonomi, Bisnis, Sains, dan
+                        Teknologi. Kami berdedikasi untuk menghasilkan lulusan yang inovatif, kompeten,
+                        dan siap bersaing di pasar global melalui program pendidikan berkualitas dan
                         kemitraan internasional.
                     </p>
                 </div>
@@ -94,9 +96,9 @@
                         <i class="fas fa-door-open"></i>
                     </div>
                     <p class="peminjaman-description">
-                        Sebelum Anda mengeklik tombol "Pinjam Ruangan", pastikan Anda telah memeriksa 
-                        ketersediaan jadwal secara real-time melalui kalender interaktif kami untuk 
-                        menghindari double booking; proses di MyRoom sepenuhnya paperless, cepat, dan 
+                        Sebelum Anda mengeklik tombol "Pinjam Ruangan", pastikan Anda telah memeriksa
+                        ketersediaan jadwal secara real-time melalui kalender interaktif kami untuk
+                        menghindari double booking; proses di MyRoom sepenuhnya paperless, cepat, dan
                         status peminjaman akan diinformasikan secara otomatis melalui notifikasi instan.
                     </p>
                     <a href="app/view/home/login.php" class="btn btn-secondary">
@@ -122,7 +124,7 @@
                     </div>
                     <h3 class="step-title">Cek Ketersediaan Ruangan</h3>
                     <p class="step-description">
-                        Hal pertama yang harus Anda lakukan adalah memastikan ruangan yang Anda inginkan 
+                        Hal pertama yang harus Anda lakukan adalah memastikan ruangan yang Anda inginkan
                         tidak sedang digunakan atau sudah dipesan.
                     </p>
                 </div>
@@ -133,7 +135,7 @@
                     </div>
                     <h3 class="step-title">Mengisi Formulir Peminjaman</h3>
                     <p class="step-description">
-                        Setelah Anda menemukan ruangan yang tersedia, segera isi formulir pengajuan 
+                        Setelah Anda menemukan ruangan yang tersedia, segera isi formulir pengajuan
                         peminjaman dengan data yang lengkap dan akurat.
                     </p>
                 </div>
@@ -144,7 +146,7 @@
                     </div>
                     <h3 class="step-title">Tunggu Konfirmasi Status</h3>
                     <p class="step-description">
-                        Setelah formulir diajukan, permohonan Anda akan melalui proses peninjauan oleh 
+                        Setelah formulir diajukan, permohonan Anda akan melalui proses peninjauan oleh
                         pihak berwenang.
                     </p>
                 </div>
@@ -155,7 +157,7 @@
                     </div>
                     <h3 class="step-title">Unggah Bukti Kegiatan</h3>
                     <p class="step-description">
-                        Setelah Selesai lakukan unggah bukti kegiatan. Ini adalah langkah penting setelah 
+                        Setelah Selesai lakukan unggah bukti kegiatan. Ini adalah langkah penting setelah
                         kegiatan selesai dilakukan, sering kali diwajibkan sebagai bentuk pertanggungjawaban.
                     </p>
                 </div>
@@ -302,12 +304,12 @@
             <div class="contact-grid">
                 <div class="contact-map">
                     <h3>Peta Lokasi ITS Mandala</h3>
-                    <iframe 
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.2969874067647!2d113.7066!3d-8.1669!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695b61f2e9f6f%3A0x4027a76e352e6f0!2sInstitut%20Teknologi%20dan%20Sains%20Mandala!5e0!3m2!1sen!2sid!4v1234567890" 
-                        width="100%" 
-                        height="100%" 
-                        style="border:0; border-radius: 12px;" 
-                        allowfullscreen="" 
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.2969874067647!2d113.7066!3d-8.1669!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd695b61f2e9f6f%3A0x4027a76e352e6f0!2sInstitut%20Teknologi%20dan%20Sains%20Mandala!5e0!3m2!1sen!2sid!4v1234567890"
+                        width="100%"
+                        height="100%"
+                        style="border:0; border-radius: 12px;"
+                        allowfullscreen=""
                         loading="lazy">
                     </iframe>
                 </div>
@@ -343,7 +345,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="contact-form">
                         <h3>Kirim Pesan via WhatsApp</h3>
                         <form id="whatsappForm">
@@ -409,4 +411,5 @@
 
     <script src="../../../public/assets/js/landing.js"></script>
 </body>
+
 </html>
