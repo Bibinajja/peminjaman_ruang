@@ -199,7 +199,7 @@ function cekKetersediaanRuangan($conn, $ruang_id, $tanggal) {
                         <div class="room-action">
                             <?php if ($can_book): ?>
                                 <a href="/peminjaman_ruang/app/view/peminjaman/form_peminjaman.php?ruang_id=<?= $room['ruang_id'] ?>&tanggal=<?= $tanggal_cek ?>"
-                                   class="btn-pinjam">Pinjam</a>
+                                   class="btn-pinjam">Pilih</a>
                             <?php else: ?>
                                 <button class="btn-penuh" disabled>
                                     <?= $is_booked ? 'Penuh' : 'Non-aktif' ?>
