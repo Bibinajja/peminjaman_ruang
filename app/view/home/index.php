@@ -14,6 +14,7 @@
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="nav-brand">
+                <!-- <img src="<?= BASEURL ?>/assets/img/o.png" alt="Logo MyRoom" class="nav-logo"> -->
                 <h2 class="logo">MyRoom</h2>
             </div>
             <ul class="nav-menu" id="navMenu">
