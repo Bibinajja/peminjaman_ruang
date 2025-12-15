@@ -1,82 +1,43 @@
 <?php
 session_start();
+require_once '../../core/Database.php';
+$db = new Database();
 
-// ============================================
-// KONEKSI DATABASE
-// ============================================
-try {
-    $host = "localhost";
-    $db_name = "db_sistem_peminjaman";
-    $username = "root";
-    $password = "";
-    
-    $conn = new PDO("mysql:host=$host;dbname=$db_name", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $conn->exec("set names utf8");
-} catch(PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
-}
-
-// ============================================
-// GET PARAMETER
-// ============================================
 $tanggal_cek = $_GET['tanggal'] ?? date('Y-m-d');
 $lokasi_filter = $_GET['lokasi'] ?? '';
 $search = trim($_GET['search'] ?? '');
 
-// Mapping lokasi kode → teks tampilan
-function formatLokasi($kode) {
-    $map = [
-        'lt1'     => 'Lantai 1',
-        'lt2'     => 'Lantai 2',
-        'lt3'     => 'Lantai 3',
-        'lab_aud' => 'Laboratorium & Auditorium'
-    ];
-    return $map[$kode] ?? $kode;
-}
-
-// ============================================
-// QUERY RUANGAN
-// ============================================
+// Query ruangan
 try {
     $query = "SELECT * FROM ruang WHERE 1=1";
-    $params = [];
-
     if ($lokasi_filter !== '') {
         $query .= " AND lokasi = :lokasi";
-        $params[':lokasi'] = $lokasi_filter;
     }
-
     if ($search !== '') {
         $query .= " AND (nama_ruang LIKE :search OR lokasi LIKE :search OR deskripsi LIKE :search)";
-        $params[':search'] = '%' . $search . '%';
     }
-
     $query .= " ORDER BY nama_ruang ASC";
 
-    $stmt = $conn->prepare($query);
-    $stmt->execute($params);
-    $ruangan = $stmt->fetchAll(PDO::FETCH_ASSOC);
-} catch(PDOException $e) {
-    die("Error fetching rooms: " . $e->getMessage());
+    $db->query($query);
+    if ($lokasi_filter !== '') $db->bind(':lokasi', $lokasi_filter);
+    if ($search !== '') $db->bind(':search', '%' . $search . '%');
+    $ruangan = $db->resultSet();
+} catch(Exception $e) {
+    die("Error: " . $e->getMessage());
 }
 
-// ============================================
-// CEK KETERSEDIAAN RUANGAN
-// ============================================
-function cekKetersediaanRuangan($conn, $ruang_id, $tanggal) {
-    try {
-        $query = "SELECT COUNT(*) as total FROM peminjaman 
-                  WHERE ruang_id = :ruang_id 
-                  AND tanggal_mulai <= :tanggal 
-                  AND tanggal_selesai >= :tanggal 
-                  AND status IN ('pending', 'disetujui', 'konfirmasi_admin', 'konfirmasi_warek', 'diterima_admin')";
-        $stmt = $conn->prepare($query);
-        $stmt->execute([':ruang_id' => $ruang_id, ':tanggal' => $tanggal]);
-        return $stmt->fetch(PDO::FETCH_ASSOC)['total'] > 0;
-    } catch(PDOException $e) {
-        return false;
-    }
+// Cek ketersediaan
+function cekKetersediaanRuangan($db, $ruang_id, $tanggal) {
+    $query = "SELECT COUNT(*) as total FROM peminjaman 
+              WHERE ruang_id = :ruang_id 
+              AND tanggal_mulai <= :tanggal 
+              AND tanggal_selesai >= :tanggal 
+              AND status IN ('pending', 'disetujui', 'konfirmasi_admin', 'konfirmasi_warek', 'diterima_admin')";
+    $db->query($query);
+    $db->bind(':ruang_id', $ruang_id);
+    $db->bind(':tanggal', $tanggal);
+    $result = $db->single();
+    return $result['total'] > 0;
 }
 ?>
 <!DOCTYPE html>
@@ -101,10 +62,17 @@ function cekKetersediaanRuangan($conn, $ruang_id, $tanggal) {
             </div>
             <div class="nav-actions">
                 <a href="/peminjaman_ruang/app/view/peminjaman/riwayat_peminjaman.php" class="nav-icon" title="Riwayat">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                    </svg>
                 </a>
                 <a href="/peminjaman_ruang/app/view/peminjaman/profile.php" class="nav-icon" title="Profile">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="8" r="3"></circle><path d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.834 2.855"></path></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="8" r="3"></circle>
+                        <path d="M6.168 18.849A4 4 0 0110 16h4a4 4 0 013.834 2.855"></path>
+                    </svg>
                 </a>
             </div>
         </div>
@@ -116,7 +84,7 @@ function cekKetersediaanRuangan($conn, $ruang_id, $tanggal) {
             <h1>Cek Ketersediaan Ruangan</h1>
             <form method="GET" action="" class="search-form">
                 <div class="form-group">
-                    <label for="search-ruang">Cek Ruangan</label>
+                    <label for="search-ruang">Cari Ruangan</label>
                     <input type="text" id="search-ruang" name="search" placeholder="Cari nama ruangan..." value="<?= htmlspecialchars($search) ?>">
                 </div>
                 <div class="form-group">
@@ -144,23 +112,27 @@ function cekKetersediaanRuangan($conn, $ruang_id, $tanggal) {
 
                     <label class="filter-item">
                         <input type="radio" name="lokasi" value="" <?= $lokasi_filter === '' ? 'checked' : '' ?>>
-                        <span>Semua Ruangan</span>
+                        <span>Semua Lokasi</span>
                     </label>
                     <label class="filter-item">
-                        <input type="radio" name="lokasi" value="lt1" <?= $lokasi_filter === 'lt1' ? 'checked' : '' ?>>
+                        <input type="radio" name="lokasi" value="Lantai 1" <?= $lokasi_filter === 'Lantai 1' ? 'checked' : '' ?>>
                         <span>Lantai 1</span>
                     </label>
                     <label class="filter-item">
-                        <input type="radio" name="lokasi" value="lt2" <?= $lokasi_filter === 'lt2' ? 'checked' : '' ?>>
+                        <input type="radio" name="lokasi" value="Lantai 2" <?= $lokasi_filter === 'Lantai 2' ? 'checked' : '' ?>>
                         <span>Lantai 2</span>
                     </label>
                     <label class="filter-item">
-                        <input type="radio" name="lokasi" value="lt3" <?= $lokasi_filter === 'lt3' ? 'checked' : '' ?>>
+                        <input type="radio" name="lokasi" value="Lantai 3" <?= $lokasi_filter === 'Lantai 3' ? 'checked' : '' ?>>
                         <span>Lantai 3</span>
                     </label>
                     <label class="filter-item">
-                        <input type="radio" name="lokasi" value="lab_aud" <?= $lokasi_filter === 'lab_aud' ? 'checked' : '' ?>>
-                        <span>Laboratorium & Auditorium</span>
+                        <input type="radio" name="lokasi" value="Laboratorium" <?= $lokasi_filter === 'Laboratorium' ? 'checked' : '' ?>>
+                        <span>Laboratorium</span>
+                    </label>
+                    <label class="filter-item">
+                        <input type="radio" name="lokasi" value="Ruang Rapat" <?= $lokasi_filter === 'Ruang Rapat' ? 'checked' : '' ?>>
+                        <span>Ruang Rapat / Auditorium</span>
                     </label>
                 </form>
             </div>
@@ -179,8 +151,8 @@ function cekKetersediaanRuangan($conn, $ruang_id, $tanggal) {
                     <p>Coba ubah filter atau kata kunci pencarian Anda</p>
                 </div>
             <?php else: ?>
-                <?php foreach ($ruangan as $room):
-                    $is_booked = cekKetersediaanRuangan($conn, $room['ruang_id'], $tanggal_cek);
+                <?php foreach ($ruangan as $room): 
+                    $is_booked = cekKetersediaanRuangan($db, $room['ruang_id'], $tanggal_cek);
                     $is_active = strtolower($room['status']) === 'aktif';
                     $can_book = $is_active && !$is_booked;
                 ?>
@@ -192,14 +164,13 @@ function cekKetersediaanRuangan($conn, $ruang_id, $tanggal) {
                             </span>
                         </div>
                         <div class="room-info">
-                            <p><strong>Lokasi:</strong> <?= formatLokasi($room['lokasi']) ?></p>
+                            <p><strong>Lokasi:</strong> <?= htmlspecialchars($room['lokasi']) ?></p>
                             <p><strong>Kapasitas:</strong> <?= htmlspecialchars($room['kapasitas']) ?> orang</p>
                             <p><strong>Deskripsi:</strong> <?= htmlspecialchars($room['deskripsi']) ?></p>
                         </div>
                         <div class="room-action">
                             <?php if ($can_book): ?>
-                                <a href="/peminjaman_ruang/app/view/peminjaman/form_peminjaman.php?ruang_id=<?= $room['ruang_id'] ?>&tanggal=<?= $tanggal_cek ?>"
-                                   class="btn-pinjam">Pilih</a>
+                                <a href="form_peminjaman.php?ruang_id=<?= $room['ruang_id'] ?>&tanggal=<?= $tanggal_cek ?>" class="btn-pinjam">PILIH</a>
                             <?php else: ?>
                                 <button class="btn-penuh" disabled>
                                     <?= $is_booked ? 'Penuh' : 'Non-aktif' ?>
@@ -215,7 +186,7 @@ function cekKetersediaanRuangan($conn, $ruang_id, $tanggal) {
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-container">
-            <p>&copy; 2024 MyRoom - Sistem Peminjaman Ruangan. All rights reserved.</p>
+            <p>&copy; 2025 MyRoom - Sistem Peminjaman Ruangan</p>
         </div>
     </footer>
 

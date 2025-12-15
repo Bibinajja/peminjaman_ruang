@@ -1,14 +1,48 @@
+<?php
+session_start();
+require_once '../../core/Database.php';
+$db = new Database();
+
+// Ambil parameter dari URL (dari cek_ketersediaan.php)
+$ruang_id = $_GET['ruang_id'] ?? '';
+$tanggal_cek = $_GET['tanggal'] ?? date('Y-m-d');
+
+// Ambil semua ruangan dari database untuk dropdown
+try {
+    $db->query("SELECT ruang_id, nama_ruang FROM ruang WHERE status = 'aktif' ORDER BY nama_ruang ASC");
+    $daftar_ruangan = $db->resultSet();
+} catch (Exception $e) {
+    $daftar_ruangan = [];
+    error_log("Error loading rooms: " . $e->getMessage());
+}
+
+// Ambil nama ruangan yang dipilih (jika ada)
+$nama_ruangan_terpilih = '';
+if ($ruang_id !== '') {
+    try {
+        $db->query("SELECT nama_ruang FROM ruang WHERE ruang_id = :id");
+        $db->bind(':id', $ruang_id);
+        $result = $db->single();
+        if ($result) {
+            $nama_ruangan_terpilih = $result['nama_ruang'];
+        }
+    } catch (Exception $e) {
+        // Jika ruang tidak ditemukan, kosongkan
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulir Peminjaman Ruangan</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
         body {
-            background-color: #f8f9fa; /* Latar belakang abu-abu muda */
+            background-color: #f8f9fa;
         }
         .form-container {
             max-width: 700px;
@@ -17,21 +51,20 @@
             border-radius: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             background-color: #ffffff;
-            border-left: 5px solid #0d6efd; /* Garis biru di sisi kiri */
+            border-left: 5px solid #0d6efd;
         }
         .form-header {
             margin-bottom: 25px;
             text-align: center;
             color: #0d6efd;
         }
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             border-color: #0d6efd;
             box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
         .btn-primary {
             background-color: #0d6efd;
             border-color: #0d6efd;
-            transition: background-color 0.3s ease;
         }
         .btn-primary:hover {
             background-color: #0a58ca;
@@ -50,43 +83,50 @@
             Formulir Peminjaman Ruangan
         </h2>
         
-        <form>
+        <form action="proses_peminjaman.php" method="POST"> <!-- Ganti dengan file proses kamu -->
+            <!-- Hidden input untuk ruang_id (penting untuk proses) -->
+            <input type="hidden" name="ruang_id" value="<?= htmlspecialchars($ruang_id) ?>">
+
             <div class="mb-3">
                 <label for="namaPeminjam" class="form-label">Nama Peminjam</label>
-                <input type="text" class="form-control" id="namaPeminjam" placeholder="Masukkan nama lengkap Anda" required>
+                <input type="text" class="form-control" id="namaPeminjam" name="nama_peminjam" placeholder="Masukkan nama lengkap Anda" required>
             </div>
 
             <div class="mb-3">
                 <label for="namaRuang" class="form-label">Nama Ruangan</label>
-                <select class="form-select" id="namaRuang" required>
-                    <option selected disabled value="">Pilih Ruangan...</option>
-                    <option value="AULA-BESAR">Aula Besar Serbaguna</option>
-                    <option value="R-MEETING">Ruang Rapat Utama</option>
-                    <option value="LAB-KOM">Laboratorium Komputer</option>
-                    <option value="R-KULIAH-301">Ruang Kuliah 301</option>
+                <select class="form-select" id="namaRuang" name="nama_ruang" required>
+                    <option value="" disabled <?= $ruang_id === '' ? 'selected' : '' ?>>Pilih Ruangan...</option>
+                    <?php foreach ($daftar_ruangan as $ruang): ?>
+                        <option value="<?= htmlspecialchars($ruang['nama_ruang']) ?>" 
+                            <?= ($ruang['ruang_id'] == $ruang_id || $ruang['nama_ruang'] === $nama_ruangan_terpilih) ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($ruang['nama_ruang']) ?>
+                        </option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="waktuMulai" class="form-label">Waktu Mulai</label>
+                    <label class="form-label">Waktu Mulai</label>
                     <div class="input-group">
-                        <input type="date" class="form-control" id="tanggalMulai" required>
-                        <input type="time" class="form-control" id="jamMulai" required>
+                        <input type="date" class="form-control" id="tanggalMulai" name="tanggal_mulai" 
+                               value="<?= htmlspecialchars($tanggal_cek) ?>" required>
+                        <input type="time" class="form-control" id="jamMulai" name="jam_mulai" required>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <label for="waktuSelesai" class="form-label">Waktu Selesai</label>
+                    <label class="form-label">Waktu Selesai</label>
                     <div class="input-group">
-                        <input type="date" class="form-control" id="tanggalSelesai" required>
-                        <input type="time" class="form-control" id="jamSelesai" required>
+                        <input type="date" class="form-control" id="tanggalSelesai" name="tanggal_selesai" required>
+                        <input type="time" class="form-control" id="jamSelesai" name="jam_selesai" required>
                     </div>
                 </div>
             </div>
 
             <div class="mb-4">
                 <label for="keperluan" class="form-label">Keperluan Peminjaman</label>
-                <textarea class="form-control" id="keperluan" rows="3" placeholder="Jelaskan secara singkat dan jelas keperluan Anda meminjam ruangan (misalnya: Rapat Koordinasi Tim Marketing)" required></textarea>
+                <textarea class="form-control" id="keperluan" name="keperluan" rows="3" 
+                          placeholder="Jelaskan secara singkat dan jelas keperluan Anda meminjam ruangan (misalnya: Rapat Koordinasi Tim Marketing)" required></textarea>
             </div>
 
             <div class="d-grid gap-2">
@@ -99,11 +139,25 @@
                 </button>
             </div>
         </form>
-        
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Optional: Validasi sederhana agar tanggal selesai >= mulai -->
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    const tglMulai = document.getElementById('tanggalMulai').value;
+    const jamMulai = document.getElementById('jamMulai').value;
+    const tglSelesai = document.getElementById('tanggalSelesai').value;
+    const jamSelesai = document.getElementById('jamSelesai').value;
+
+    if (tglSelesai < tglMulai || (tglSelesai === tglMulai && jamSelesai <= jamMulai)) {
+        e.preventDefault();
+        alert('Waktu selesai harus setelah waktu mulai!');
+    }
+});
+</script>
 
 </body>
 </html>
