@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <title>Daftar Permohonan - SDM</title>
 
@@ -18,7 +19,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 30px;
         }
 
@@ -39,7 +40,7 @@
 
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
         }
 
         .icon-box {
@@ -58,76 +59,78 @@
 
 <body>
 
-<div class="content">
+    <div class="content">
 
-    <div class="topbar">
-        <h3>Daftar Permohonan Peminjaman Ruang</h3>
-        <a href="logout.php" class="btn btn-outline-danger">Logout</a>
-    </div>
+        <div class="topbar">
+            <h3>Daftar Permohonan Peminjaman Ruang</h3>
+            <a href="logout.php" class="btn btn-outline-danger">Logout</a>
+        </div>
 
-    <div class="row g-4">
+        <div class="row g-4">
 
-        <?php if (!empty($data)) : ?>
-            <?php foreach ($data as $row): ?>
+            <?php if (!empty($data['peminjaman'])) : ?>
+                <?php foreach ($data['peminjaman'] as $row): ?>
 
-                <?php
-                $badge = match($row['status']) {
-                    'Disetujui' => 'bg-success',
-                    'Ditolak'   => 'bg-danger',
-                    'Menunggu'  => 'bg-warning',
-                    default     => 'bg-secondary'
-                };
-                ?>
 
-                <div class="col-xl-3 col-lg-4 col-md-6">
-                    <div class="card shadow-sm h-100">
+                    <?php
+                    $badge = match ($row['status']) {
+                        'Disetujui' => 'bg-success',
+                        'Ditolak'   => 'bg-danger',
+                        'Menunggu'  => 'bg-warning',
+                        default     => 'bg-secondary'
+                    };
+                    ?>
 
-                        <div class="card-body">
+                    <div class="col-xl-3 col-lg-4 col-md-6">
+                        <div class="card shadow-sm h-100">
 
-                            <div class="icon-box">
-                                🏢
+                            <div class="card-body">
+
+                                <div class="icon-box">
+                                    🏢
+                                </div>
+
+                                <h5 class="card-title mb-1">
+                                    <?= htmlspecialchars($row['nama_pemohon']) ?>
+                                </h5>
+
+                                <small class="text-muted d-block mb-2">
+                                    Ruang: <?= htmlspecialchars($row['nama_ruang'] ?? 'Tidak ada') ?>
+                                </small>
+
+                                <p class="mb-2">
+                                    📅 <?= htmlspecialchars($row['tanggal']) ?>
+                                </p>
+
+                                <span class="badge <?= $badge ?> px-3 py-2">
+                                    <?= $row['status'] ?>
+                                </span>
+
                             </div>
 
-                            <h5 class="card-title mb-1">
-                                <?= htmlspecialchars($row['nama_pemohon']) ?>
-                            </h5>
-
-                            <small class="text-muted d-block mb-2">
-                                Ruang: <?= htmlspecialchars($row['nama_ruang'] ?? 'Tidak ada') ?>
-                            </small>
-
-                            <p class="mb-2">
-                                📅 <?= htmlspecialchars($row['tanggal']) ?>
-                            </p>
-
-                            <span class="badge <?= $badge ?> px-3 py-2">
-                                <?= $row['status'] ?>
-                            </span>
+                            <div class="card-footer bg-white text-center">
+                                <a href="detail_permohonan.php?id=<?= $row['id'] ?>"
+                                    class="btn btn-info btn-sm w-100">
+                                    Periksa
+                                </a>
+                            </div>
 
                         </div>
+                    </div>
 
-                        <div class="card-footer bg-white text-center">
-                            <a href="detail_permohonan.php?id=<?= $row['id'] ?>"
-                               class="btn btn-info btn-sm w-100">
-                                Periksa
-                            </a>
-                        </div>
-
+                <?php endforeach; ?>
+            <?php else : ?>
+                <div class="col-12">
+                    <div class="alert alert-info text-center">
+                        Belum ada permohonan peminjaman ruang
                     </div>
                 </div>
+            <?php endif; ?>
 
-            <?php endforeach; ?>
-        <?php else : ?>
-            <div class="col-12">
-                <div class="alert alert-info text-center">
-                    Belum ada permohonan peminjaman ruang
-                </div>
-            </div>
-        <?php endif; ?>
+        </div>
 
     </div>
 
-</div>
-
 </body>
+
 </html>

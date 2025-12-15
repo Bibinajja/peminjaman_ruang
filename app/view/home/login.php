@@ -34,7 +34,11 @@
 
 <body>
 
+
     <div class="container login-container d-flex justify-content-center align-items-center">
+         <div class="col-md-6 d-none d-md-flex align-items-center justify-content-center bg-image">
+      <img src="../../../public/assets/img/b.jpg" class="img-fluid login-image" alt="Login Image">
+    </div>
         <div class="col-md-4">
 
             <div class="login-card">

@@ -61,4 +61,24 @@ class Peminjaman_model
         $this->db->bind('reason', $reason);
         return $this->db->execute();
     }
+
+    public function getPending()
+    {
+        $query = "
+        SELECT 
+            p.peminjaman_id,
+            u.nama AS nama_pemohon,
+            r.nama_ruang,
+            p.tanggal_mulai AS tanggal,
+            p.status
+        FROM {$this->table} p
+        JOIN users u ON p.user_id = u.user_id
+        JOIN ruang r ON p.ruang_id = r.ruang_id
+        WHERE p.status = 'menunggu'
+        ORDER BY p.peminjaman_id DESC
+    ";
+
+        $this->db->query($query);
+        return $this->db->resultSet();
+    }
 }
