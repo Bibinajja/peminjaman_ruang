@@ -58,20 +58,43 @@ class Admin extends Controller
         exit;
     }
 
-    // =========================
-    // KONFIRMASI PEMINJAMAN
-    // =========================
-    public function konfirmasi_peminjaman()
-    {
-        $data['peminjaman'] = $this->model('Peminjaman_model')->getPending();
-        $this->view('admin/konfirmasi_peminjaman', $data);
-    }
+    // -------------------------
+    // Konfirmasi Peminjaman Tahap 1
+    // -------------------------
+   public function konfirmasi_peminjaman()
+{
+    $data['pending'] = $this->model('Peminjaman_model')->getPending(); // nama variabel jelas
+    $data['title'] = 'Konfirmasi Peminjaman';
+    $this->view('admin/konfirmasi_peminjaman', $data);
+}
+
 
     public function detail_peminjaman($id)
     {
-        $data['detail'] = $this->model('Peminjaman_model')->getById($id);
+        $data = $this->model("Peminjaman_model")->getById($id);
+        
         $this->view('admin/detail_peminjaman', $data);
     }
+
+    public function getPending()
+{
+    $this->db->query("
+        SELECT 
+            p.peminjaman_id,
+            u.nama AS nama_peminjam,
+            r.nama_ruang,
+            p.tanggal_mulai,
+            p.tanggal_selesai,
+            p.keperluan,
+            p.status
+        FROM peminjaman p
+        JOIN users u ON p.user_id = u.user_id
+        JOIN ruang r ON p.ruang_id = r.ruang_id
+        WHERE p.status = 'pending'
+        ORDER BY p.peminjaman_id DESC
+    ");
+    return $this->db->resultSet();
+}
 
     public function setujui_peminjaman($id)
     {
