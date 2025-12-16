@@ -149,10 +149,6 @@
                             <i class="fas fa-check"></i>
                             Setuju
                         </button>
-                        <button class="btn btn-reject" onclick="rejectBooking('PM001')">
-                            <i class="fas fa-times"></i>
-                            Tolak
-                        </button>
                     </div>
                 </div>
 
