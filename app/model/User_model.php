@@ -3,15 +3,6 @@
 class User_model
 {
 
-    // public function login($username, $password)
-    // {
-    //     // contoh return
-    //     return [
-    //         'username' => $username,
-    //         'role' => 'peminjam'
-    //     ];
-    // }
-
     private $db;
 
     public function __construct()
@@ -27,24 +18,7 @@ class User_model
         return $this->db->single();
     }
 
-    // public function login($email, $password)
-    // {
-    //     $this->db->query("SELECT * FROM users WHERE email = :email");
-    //     $this->db->bind(':email', $email);
-    //     $user = $this->db->single();
 
-    //     if (!$user) {
-    //         return false;
-    //     }
-
-    //     if ($password !== $user['password']) {
-    //         return false;
-    //     }
-
-    //     return $user;
-    // }
-
-    // 📝 Register user
     public function register($data)
     {
         $query = "INSERT INTO users (nama, email, password, created_at)
@@ -61,20 +35,14 @@ class User_model
     // 🔐 Login (FIX LOGIC)
     public function login($email, $password)
     {
-        $user = $this->getUserByEmail($email);
+        $this->db->query("SELECT * FROM users WHERE email = :email");
+        $this->db->bind('email', $email);
+        $user = $this->db->single();
 
-        if (!$user) {
-            return false;
+        if ($user && password_verify($password, $user['password'])) {
+            return $user;
         }
 
-        if (!password_verify($password, $user['password'])) {
-            return false;
-        }
-
-        return $user;
+        return false;
     }
-
-    
-    
-
 }

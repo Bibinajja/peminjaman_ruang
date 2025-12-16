@@ -26,37 +26,35 @@ class Home extends Controller
 
     public function auth()
     {
-        // Proses Login u ser
-        if (isset($_POST['email']) && isset($_POST['password'])) {
-            $user = $this->model('User_model')->getUserByEmail($_POST['email']);
+        // Pastikan input ada sebelum mengaksesnya untuk menghindari error 'Undefined index'
+        $email = isset($_POST['email']) ? $_POST['email'] : '';
+        $password = isset($_POST['password']) ? $_POST['password'] : '';
 
-            // Cek user ada & password cocok (Disarankan pakai password_verify jika di hash)
-            // Disini saya pakai contoh perbandingan langsung untuk simplifikasi
-            if ($user && $_POST['password'] == $user['password']) {
+        $user = $this->model('User_model')->login($email, $password);
 
-                // Set Session
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['nama'] = $user['nama'];
-                $_SESSION['role'] = $user['role'];
-                $_SESSION['loggedin'] = true;
+        if ($user) {
+            // ✅ SET SESSION LOGIN
+            $_SESSION['user'] = [
+                'user_id' => $user['user_id'],
+                'nama'    => $user['nama'],
+                'role'    => $user['role']
+            ];
 
-                // Redirect sesuai Role
-                if ($user['role'] == 'admin') {
-                    header('Location: ' . BASEURL . '/admin');
-                } elseif ($user['role'] == 'warek') {
-                    header('Location: ' . BASEURL . '/warek');
-                } else {
-                    header('Location: ' . BASEURL . '/peminjam');
-                }
-                exit;
-            } else {
-                // Login Gagal memsukkan user 
-                header('Location: ' . BASEURL . '/home/login');
-                exit;
+            // ✅ REDIRECT SESUAI ROLE
+            if ($user['role'] === 'admin') {
+                header("Location: " . BASEURL . "/admin");
+            } elseif ($user['role'] === 'peminjam') {
+                header("Location: " . BASEURL . "/peminjam");
+            } elseif ($user['role'] === 'warek') {
+                header("Location: " . BASEURL . "/warek");
             }
+            exit;
         }
-    }
 
+        // ❌ LOGIN GAGAL
+        header("Location: " . BASEURL . "/home/login?error=1");
+        exit;
+    }
 
     public function logout()
     {
