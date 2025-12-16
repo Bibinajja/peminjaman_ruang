@@ -2,18 +2,93 @@
 
 class Peminjaman_model
 {
-
     private $table = 'peminjaman';
     private $db;
 
     public function __construct()
     {
-        $this->db = new Database; // Pastikan kamu punya class Database
+        $this->db = new Database;
     }
 
-    /**
-     * Ambil daftar permintaan pengembalian (status = 'pengembalian')
-     */
+    // -------------------------------
+    // 1. Ambil daftar peminjaman yang MENUNGGU KONFIRMASI ADMIN (pending)
+    // -------------------------------
+    public function getPending()
+    {
+        $query = "
+            SELECT 
+                p.peminjaman_id,
+                u.nama AS nama_peminjam,
+                r.nama_ruang,
+                p.tanggal_mulai,
+                p.tanggal_selesai,
+                p.keperluan,
+                p.status
+            FROM {$this->table} p
+            JOIN users u ON p.user_id = u.user_id
+            JOIN ruang r ON p.ruang_id = r.ruang_id
+            WHERE p.status = 'pending' OR p.status = 'menunggu konfirmasi'
+            ORDER BY p.peminjaman_id DESC
+        ";
+
+        $this->db->query($query);
+        return $this->db->resultSet();
+    }
+
+    // -------------------------------
+    // 2. Ambil detail satu peminjaman berdasarkan ID
+    // -------------------------------
+    public function getById($id)
+    {
+        $query = "
+            SELECT 
+                p.*, 
+                u.nama AS nama_peminjam, 
+                r.nama_ruang,
+                r.lokasi
+            FROM {$this->table} p
+            JOIN users u ON p.user_id = u.user_id
+            JOIN ruang r ON p.ruang_id = r.ruang_id
+            WHERE p.peminjaman_id = :id
+        ";
+
+        $this->db->query($query);
+        $this->db->bind('id', $id);
+        return $this->db->single();
+    }
+
+    // -------------------------------
+    // 3. Setujui peminjaman oleh admin
+    // -------------------------------
+    public function approveAdmin($id)
+    {
+        $query = "UPDATE {$this->table} SET status = 'disetujui' WHERE peminjaman_id = :id";
+        $this->db->query($query);
+        $this->db->bind('id', $id);
+        $this->db->execute();
+        return $this->db->rowCount(); // optional: return affected rows
+    }
+
+    // -------------------------------
+    // 4. Tolak peminjaman oleh admin
+    // -------------------------------
+    public function rejectAdmin($id, $alasan)
+    {
+        $query = "
+            UPDATE {$this->table} 
+            SET status = 'ditolak', alasan_admin = :alasan 
+            WHERE peminjaman_id = :id
+        ";
+        $this->db->query($query);
+        $this->db->bind('id', $id);
+        $this->db->bind('alasan', $alasan);
+        $this->db->execute();
+        return $this->db->rowCount();
+    }
+
+    // -------------------------------
+    // 5. (Opsional) Ambil daftar permintaan pengembalian
+    // -------------------------------
     public function getPengembalian()
     {
         $query = "
@@ -62,23 +137,6 @@ class Peminjaman_model
         return $this->db->execute();
     }
 
-    public function getPending()
-    {
-        $query = "
-        SELECT 
-            p.peminjaman_id,
-            u.nama AS nama_pemohon,
-            r.nama_ruang,
-            p.tanggal_mulai AS tanggal,
-            p.status
-        FROM {$this->table} p
-        JOIN users u ON p.user_id = u.user_id
-        JOIN ruang r ON p.ruang_id = r.ruang_id
-        WHERE p.status = 'menunggu'
-        ORDER BY p.peminjaman_id DESC
-    ";
+    
 
-        $this->db->query($query);
-        return $this->db->resultSet();
-    }
 }
