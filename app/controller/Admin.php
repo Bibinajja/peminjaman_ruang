@@ -81,25 +81,7 @@ class Admin extends Controller
         $this->view('admin/detail_peminjaman', $data);
     }
 
-    public function getPending()
-{
-    $this->db->query("
-        SELECT 
-            p.peminjaman_id,
-            u.nama AS nama_peminjam,
-            r.nama_ruang,
-            p.tanggal_mulai,
-            p.tanggal_selesai,
-            p.keperluan,
-            p.status
-        FROM peminjaman p
-        JOIN users u ON p.user_id = u.user_id
-        JOIN ruang r ON p.ruang_id = r.ruang_id
-        WHERE p.status = 'pending'
-        ORDER BY p.peminjaman_id DESC
-    ");
-    return $this->db->resultSet();
-}
+   
 
     public function setujui_peminjaman($id)
     {

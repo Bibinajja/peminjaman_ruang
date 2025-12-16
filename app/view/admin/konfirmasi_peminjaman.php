@@ -1,12 +1,8 @@
 <?php
-session_start();
-require_once '../../core/Database.php'; // Sesuaikan path jika perlu
+ // Sesuaikan path jika perlu
 $db = new Database();
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../../login.php");
-    exit();
-}
+
 
 // Proses aksi
 if (isset($_GET['action']) && isset($_GET['id'])) {
@@ -61,8 +57,8 @@ try {
 
             <ul class="nav-menu" id="navMenu">
                 <li><a href="dashboard.php" class="nav-link">Dashboard</a></li>
-                <li><a href="ruang.php" class="nav-link">Ruang</a></li>
-                <li><a href="user.php" class="nav-link">User</a></li>
+                <li><a href="manajemen_ruang.php" class="nav-link">Ruang</a></li>
+                <li><a href="manajemen_user.php" class="nav-link">User</a></li>
                 <li><a href="konfirmasi_peminjaman.php" class="nav-link active">Konfirmasi</a></li>
             </ul>
 
@@ -168,6 +164,7 @@ try {
             </div>
         <?php endif; ?>
     </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../../../public/assets/js/admin-konfirmasi.js"></script>
 <script>
 /* DROPDOWN */
 document.getElementById('profileBtn').onclick = () => {
