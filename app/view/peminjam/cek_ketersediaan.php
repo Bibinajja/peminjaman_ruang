@@ -5,26 +5,51 @@ $db = new Database();
 
 $tanggal_cek = $_GET['tanggal'] ?? date('Y-m-d');
 $lokasi_filter = $_GET['lokasi'] ?? '';
+$jenis_filter = $_GET['jenis'] ?? '';
 $search = trim($_GET['search'] ?? '');
+
 
 // Query ruangan
 try {
     $query = "SELECT * FROM ruang WHERE 1=1";
+
+    // Filter lokasi (lt1, lt2, lt3)
     if ($lokasi_filter !== '') {
         $query .= " AND lokasi = :lokasi";
     }
-    if ($search !== '') {
-        $query .= " AND (nama_ruang LIKE :search OR lokasi LIKE :search OR deskripsi LIKE :search)";
+
+    // Filter jenis ruang (kelas, laboratorium, ruang rapat)
+    if ($jenis_filter !== '') {
+        $query .= " AND deskripsi = :jenis";
     }
+
+    // Search bebas
+    if ($search !== '') {
+        $query .= " AND nama_ruang LIKE :search";
+    }
+
     $query .= " ORDER BY nama_ruang ASC";
 
     $db->query($query);
-    if ($lokasi_filter !== '') $db->bind(':lokasi', $lokasi_filter);
-    if ($search !== '') $db->bind(':search', '%' . $search . '%');
+
+    if ($lokasi_filter !== '') {
+        $db->bind(':lokasi', $lokasi_filter);
+    }
+
+    if ($jenis_filter !== '') {
+        $db->bind(':jenis', $jenis_filter);
+    }
+
+    if ($search !== '') {
+        $db->bind(':search', '%' . $search . '%');
+    }
+
     $ruangan = $db->resultSet();
-} catch(Exception $e) {
+
+} catch (Exception $e) {
     die("Error: " . $e->getMessage());
 }
+
 
 // Cek ketersediaan
 function cekKetersediaanRuangan($db, $ruang_id, $tanggal) {
@@ -103,40 +128,66 @@ function cekKetersediaanRuangan($db, $ruang_id, $tanggal) {
     <div class="main-content">
         <!-- Sidebar Filter -->
         <aside class="sidebar">
-            <h3>Filter</h3>
-            <div class="filter-section">
-                <h4>Lokasi</h4>
-                <form method="GET" action="" id="filter-form">
-                    <input type="hidden" name="tanggal" value="<?= $tanggal_cek ?>">
-                    <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
+    <h3>Filter</h3>
 
-                    <label class="filter-item">
-                        <input type="radio" name="lokasi" value="" <?= $lokasi_filter === '' ? 'checked' : '' ?>>
-                        <span>Semua Lokasi</span>
-                    </label>
-                    <label class="filter-item">
-                        <input type="radio" name="lokasi" value="Lantai 1" <?= $lokasi_filter === 'Lantai 1' ? 'checked' : '' ?>>
-                        <span>Lantai 1</span>
-                    </label>
-                    <label class="filter-item">
-                        <input type="radio" name="lokasi" value="Lantai 2" <?= $lokasi_filter === 'Lantai 2' ? 'checked' : '' ?>>
-                        <span>Lantai 2</span>
-                    </label>
-                    <label class="filter-item">
-                        <input type="radio" name="lokasi" value="Lantai 3" <?= $lokasi_filter === 'Lantai 3' ? 'checked' : '' ?>>
-                        <span>Lantai 3</span>
-                    </label>
-                    <label class="filter-item">
-                        <input type="radio" name="lokasi" value="Laboratorium" <?= $lokasi_filter === 'Laboratorium' ? 'checked' : '' ?>>
-                        <span>Laboratorium</span>
-                    </label>
-                    <label class="filter-item">
-                        <input type="radio" name="lokasi" value="Ruang Rapat" <?= $lokasi_filter === 'Ruang Rapat' ? 'checked' : '' ?>>
-                        <span>Ruang Rapat / Auditorium</span>
-                    </label>
-                </form>
-            </div>
-        </aside>
+    <form method="GET" action="" id="filter-form">
+
+        <input type="hidden" name="tanggal" value="<?= $tanggal_cek ?>">
+        <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
+
+        <!-- FILTER LOKASI -->
+        <div class="filter-section">
+            <h4>Lokasi</h4>
+
+            <label class="filter-item">
+                <input type="radio" name="lokasi" value="" <?= $lokasi_filter === '' ? 'checked' : '' ?>>
+                <span>Semua Lokasi</span>
+            </label>
+
+            <label class="filter-item">
+                <input type="radio" name="lokasi" value="lt1" <?= $lokasi_filter === 'lt1' ? 'checked' : '' ?>>
+                <span>Lantai 1</span>
+            </label>
+
+            <label class="filter-item">
+                <input type="radio" name="lokasi" value="lt2" <?= $lokasi_filter === 'lt2' ? 'checked' : '' ?>>
+                <span>Lantai 2</span>
+            </label>
+
+            <label class="filter-item">
+                <input type="radio" name="lokasi" value="lt3" <?= $lokasi_filter === 'lt3' ? 'checked' : '' ?>>
+                <span>Lantai 3</span>
+            </label>
+        </div>
+
+        <!-- FILTER JENIS RUANG -->
+        <div class="filter-section">
+            <h4>Jenis Ruang</h4>
+
+            <label class="filter-item">
+                <input type="radio" name="jenis" value="" <?= $jenis_filter === '' ? 'checked' : '' ?>>
+                <span>Semua Jenis</span>
+            </label>
+
+            <label class="filter-item">
+                <input type="radio" name="jenis" value="kelas" <?= $jenis_filter === 'kelas' ? 'checked' : '' ?>>
+                <span>Kelas</span>
+            </label>
+
+            <label class="filter-item">
+                <input type="radio" name="jenis" value="laboratorium" <?= $jenis_filter === 'laboratorium' ? 'checked' : '' ?>>
+                <span>Laboratorium</span>
+            </label>
+
+            <label class="filter-item">
+                <input type="radio" name="jenis" value="ruang rapat" <?= $jenis_filter === 'ruang rapat' ? 'checked' : '' ?>>
+                <span>Ruang Rapat</span>
+            </label>
+        </div>
+
+    </form>
+</aside>
+
 
         <!-- Room Grid -->
         <div class="room-grid">
