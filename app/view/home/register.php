@@ -1,12 +1,7 @@
 <?php
-session_start();
 
-// Include database connection
-require_once '../../core/Database.php';
-
-// Initialize response variables
-$error = '';
-$success = '';
+$error = null;
+$success = null;
 
 // Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -84,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $role = 'peminjam';
 
         // INSERT USER
-       
+
         $db->query("
             INSERT INTO users (nama, email, password, role, created_at)
             VALUES (:nama, :email, :password, :role, NOW())
@@ -92,7 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $db->bind(':nama', $nama);
         $db->bind(':email', $email);
-        $db->bind(':password', $password); // (belum hashing)
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $db->bind(':password', $hashedPassword);
+        // (belum hashing)
         $db->bind(':role', $role);
 
         $db->execute();
@@ -103,7 +100,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             throw new Exception('Registrasi gagal. Silakan coba lagi.');
         }
-
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
@@ -112,6 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -119,6 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="../../../public/assets/css/register.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
 <body>
     <div class="register-container">
         <!-- Left Side - Branding -->
@@ -172,34 +170,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Error Message -->
                 <?php if ($error): ?>
-                <div class="alert alert-error">
-                    <i class="fas fa-exclamation-circle"></i>
-                    <span><?= htmlspecialchars($error) ?></span>
-                </div>
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span><?= htmlspecialchars($error) ?></span>
+                    </div>
                 <?php endif; ?>
 
                 <!-- Success Message -->
                 <?php if ($success): ?>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    <span><?= htmlspecialchars($success) ?></span>
-                </div>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <span><?= htmlspecialchars($success) ?></span>
+                    </div>
                 <?php endif; ?>
 
                 <!-- Register Form -->
                 <form id="registerForm" class="register-form" method="POST" action="">
-                    
+
                     <!-- Nama Lengkap -->
                     <div class="form-group">
                         <label for="nama" class="form-label">
                             <i class="fas fa-user"></i>
                             Nama Lengkap
                         </label>
-                        <input 
-                            type="text" 
-                            id="nama" 
-                            name="nama" 
-                            class="form-input" 
+                        <input
+                            type="text"
+                            id="nama"
+                            name="nama"
+                            class="form-input"
                             placeholder="Masukkan nama lengkap"
                             maxlength="100"
                             value="<?= isset($_POST['nama']) ? htmlspecialchars($_POST['nama']) : '' ?>"
@@ -213,11 +211,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <i class="fas fa-envelope"></i>
                             Email
                         </label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            class="form-input" 
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-input"
                             placeholder="nama@example.com"
                             maxlength="120"
                             value="<?= isset($_POST['email']) ? htmlspecialchars($_POST['email']) : '' ?>"
@@ -232,11 +230,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             Password
                         </label>
                         <div class="password-wrapper">
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                class="form-input" 
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="form-input"
                                 placeholder="Minimal 8 karakter"
                                 required>
                             <button type="button" class="toggle-password" onclick="togglePassword('password')">
@@ -253,11 +251,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             Konfirmasi Password
                         </label>
                         <div class="password-wrapper">
-                            <input 
-                                type="password" 
-                                id="confirmPassword" 
-                                name="confirmPassword" 
-                                class="form-input" 
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                class="form-input"
                                 placeholder="Ulangi password"
                                 required>
                             <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
@@ -273,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <input type="checkbox" id="terms" name="terms" required>
                             <span class="checkbox-custom"></span>
                             <span class="checkbox-text">
-                                Saya menyetujui <a href="#" class="link">Syarat & Ketentuan</a> 
+                                Saya menyetujui <a href="#" class="link">Syarat & Ketentuan</a>
                                 dan <a href="#" class="link">Kebijakan Privasi</a>
                             </span>
                         </label>
@@ -310,4 +308,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script src="../../../public/assets/js/register.js"></script>
 </body>
+
 </html>
