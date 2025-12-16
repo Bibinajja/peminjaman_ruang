@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Warek - MyRoom</title>
-    <link rel="stylesheet" href="<?= BASEURL ?>/assets/css/warek_dashboard.css">
+    <link rel="stylesheet" href="../../../public/assets/css/warek_dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -117,15 +117,6 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon rejected">
-                        <i class="fas fa-times-circle"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 class="stat-number">5</h3>
-                        <p class="stat-label">Ditolak</p>
-                    </div>
-                </div>
-                <div class="stat-card">
                     <div class="stat-icon total">
                         <i class="fas fa-clipboard-list"></i>
                     </div>
@@ -177,13 +168,6 @@
                         </div>
                         <h3 class="quick-title">Laporan</h3>
                         <p class="quick-desc">Lihat laporan dan statistik peminjaman</p>
-                    </a>
-                    <a href="settings.php" class="quick-card">
-                        <div class="quick-icon">
-                            <i class="fas fa-cog"></i>
-                        </div>
-                        <h3 class="quick-title">Pengaturan</h3>
-                        <p class="quick-desc">Kelola pengaturan akun Anda</p>
                     </a>
                 </div>
             </div>

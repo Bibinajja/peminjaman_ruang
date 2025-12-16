@@ -14,7 +14,7 @@ class Database
     {
         // die("DATABASE CONSTRUCTOR TERPANGGIL");
         // Data Source Name (DSN)
-        $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->db_name;
+        $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->db_name; //pgsql=host
 
         $option = [
             PDO::ATTR_PERSISTENT => true, // Menjaga koneksi tetap terjaga
