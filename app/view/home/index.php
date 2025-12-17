@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyRoom - Sistem Peminjaman Ruang ITS Mandala</title>
-    <link rel="stylesheet" href="../../public/assets/css/landing.css">
+    <link rel="stylesheet" href="../../../public/assets/css/landing.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -36,7 +36,7 @@
             <p class="hero-description">
                 MyRoom hadir sebagai bukti nyata komitmen ITS Mandala dalam menerapkan solusi teknologi untuk kehidupan kampus yang lebih baik. Gunakan MyRoom sekarang dan rasakan kemudahan mengelola ruang di ujung jari Anda!
             </p>
-            <button class="btn-primary" onclick="window.location.href='login.php'">
+            <button class="btn-primary" onclick="window.location.href='<?php echo BASEURL; ?>/home/login'">
                 <i class="fas fa-sign-in-alt"></i> Login Sekarang
             </button>
         </div>
@@ -357,6 +357,6 @@
         </div>
     </div>
 
-    <script src="../../public/assets/js/landing.js"></script>
+    <script src="../../../public/assets/js/landing.js"></script>
 </body>
 </html>
