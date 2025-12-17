@@ -1,43 +1,33 @@
 <?php
-session_start();
 
-// Check if user is logged in and has Warek role
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'warek') {
-    header('Location: ../../../index.php');
-    exit();
-}
 
-// Database connection using existing Database class
-require_once '../../core/Database.php';
-$db = new Database();
+// // Fetch pending peminjaman (status = 'konfirmasi_admin')
+// $query = "SELECT 
+//             p.peminjaman_id,
+//             p.user_id,
+//             p.ruang_id,
+//             p.tanggal_mulai,
+//             p.tanggal_selesai,
+//             p.keperluan,
+//             p.status,
+//             p.created_at,
+//             u.nama as nama_peminjam,
+//             u.email as email_peminjam,
+//             r.nama_ruang,
+//             r.kapasitas,
+//             r.lokasi
+//           FROM peminjaman p
+//           JOIN users u ON p.user_id = u.user_id
+//           JOIN ruang r ON p.ruang_id = r.ruang_id
+//           WHERE p.status = :status
+//           ORDER BY p.created_at DESC";
 
-// Fetch pending peminjaman (status = 'konfirmasi_admin')
-$query = "SELECT 
-            p.peminjaman_id,
-            p.user_id,
-            p.ruang_id,
-            p.tanggal_mulai,
-            p.tanggal_selesai,
-            p.keperluan,
-            p.status,
-            p.created_at,
-            u.nama as nama_peminjam,
-            u.email as email_peminjam,
-            r.nama_ruang,
-            r.kapasitas,
-            r.lokasi
-          FROM peminjaman p
-          JOIN users u ON p.user_id = u.user_id
-          JOIN ruang r ON p.ruang_id = r.ruang_id
-          WHERE p.status = :status
-          ORDER BY p.created_at DESC";
-
-$db->query($query);
-$db->bind(':status', 'konfirmasi_admin');
-$peminjaman_list = $db->resultSet();
+// $db->query($query);
+// $db->bind(':status', 'konfirmasi_admin');
+// $peminjaman_list = $db->resultSet();
 
 // Count pending bookings
-$pending_count = count($peminjaman_list);
+// $pending_count = count($peminjaman_list);
 
 // Get user info
 $user_name = $_SESSION['nama'] ?? 'Wakil Rektor';

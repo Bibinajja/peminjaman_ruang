@@ -20,12 +20,18 @@ class Warek extends Controller
 
     public function konfirmasi()
     {
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'warek') {
+            header('Location: ' . BASEURL . '/home/login');
+            exit;
+        }
+
         $data['judul'] = 'Konfirmasi Peminjaman';
-        $data['namaWarek'] = $_SESSION['user']['nama'];
-        $data['peminjaman'] = $this->model("Peminjaman_model")->getTahap1();
+        $data['namaWarek'] = $_SESSION['user']['nama'] ?? 'Warek';
+        $data['peminjaman'] = $this->model('Peminjaman_model')->getTahapWarek();
 
         $this->view('warek/konfirmasi_warek', $data);
     }
+
 
     public function setujui($id)
     {

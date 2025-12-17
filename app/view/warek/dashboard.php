@@ -1,65 +1,10 @@
 <?php
-// session_start();
 
-// // Cek apakah user sudah login dan role-nya warek
-// if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'warek') {
-//     header('Location: ../../../index.php');
-//     exit;
-// }
-
-// Koneksi database
-// require_once '../../core/Database.php';
-// $db = new Database();
-
-/*
-|--------------------------------------------------------------------------
-| STATISTIK DASHBOARD WAREK
-|--------------------------------------------------------------------------
-| Warek hanya menangani:
-| - menunggu_warek (belum dikonfirmasi)
-| - diterima (sudah dikonfirmasi warek)
-*/
-
-// Menunggu konfirmasi Warek
-// $db->query("
-//     SELECT COUNT(*) AS total
-//     FROM peminjaman
-//     WHERE status = 'konfirmasi_admin'
-// ");
-// $pendingCount = $db->single()['total'] ?? 0;
-
-// // Sudah diterima (final)
-// $db->query("
-//     SELECT COUNT(*) AS total
-//     FROM peminjaman
-//     WHERE status = 'diterima'
-// ");
-// $approvedCount = $db->single()['total'] ?? 0;
-
-// // Total pengajuan yang ditangani Warek
-// $totalCount = $pendingCount + $approvedCount;
-
-
-// $db->query("
-//     SELECT
-//         p.peminjaman_id,
-//         p.tanggal_mulai,
-//         p.tanggal_selesai,
-//         p.keperluan,
-//         p.status,
-//         p.created_at,
-//         r.nama_ruang,
-//         u.nama AS peminjam_nama
-//     FROM peminjaman p
-//     JOIN ruang r ON p.ruang_id = r.ruang_id
-//     JOIN users u ON p.user_id = u.user_id
-//     WHERE p.status = 'diterima'
-//     ORDER BY p.created_at DESC
-// ");
-// $historyData = $db->resultSet();
-
-// // Nama Warek
-// $namaWarek = $_SESSION['nama'] ?? 'Warek';
+$namaWarek     = $data['namaWarek'] ?? 'Warek';
+$pendingCount  = $data['pendingCount'] ?? 0;
+$approvedCount = $data['approvedCount'] ?? 0;
+$totalCount    = $data['totalCount'] ?? 0;
+$historyData   = $data['historyData'] ?? [];
 ?>
 
 <!DOCTYPE html>
@@ -196,7 +141,7 @@
                     <p class="action-description">
                         Tinjau dan berikan konfirmasi akhir untuk peminjaman ruangan yang telah disetujui oleh admin
                     </p>
-                    <a href="konfirmasi_warek.php" class="btn btn-primary">
+                    <a href="<?= BASEURL ?>/warek/konfirmasi" class="btn btn-primary">
                         <i class="fas fa-arrow-right"></i>
                         Konfirmasi Peminjaman
                     </a>
