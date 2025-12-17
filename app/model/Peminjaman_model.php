@@ -10,6 +10,23 @@ class Peminjaman_model
         $this->db = new Database;
     }
 
+    public function add($data)
+    {
+        $query = "INSERT INTO peminjaman
+        (user_id, ruang_id, tanggal_mulai, tanggal_selesai, keperluan, status)
+        VALUES (:user_id, :ruang_id, :tm, :ts, :kep, :status)";
+
+        $this->db->query($query);
+        $this->db->bind(':user_id', $data['user_id']);
+        $this->db->bind(':ruang_id', $data['ruang_id']);
+        $this->db->bind(':tm', $data['tanggal_mulai']);
+        $this->db->bind(':ts', $data['tanggal_selesai']);
+        $this->db->bind(':kep', $data['keperluan']);
+        $this->db->bind(':status', $data['status']);
+        return $this->db->execute();
+    }
+
+
     // -------------------------------
     // 1. Ambil daftar peminjaman yang MENUNGGU KONFIRMASI ADMIN (pending)
     // -------------------------------
@@ -87,6 +104,56 @@ class Peminjaman_model
     }
 
     // -------------------------------
+    // 5. Konfirmasi warek
+    // -------------------------------
+
+    public function getTahapWarek()
+    {
+        $query = "
+        SELECT 
+            p.peminjaman_id,
+            u.nama AS nama_peminjam,
+            r.nama_ruang,
+            p.tanggal_mulai,
+            p.tanggal_selesai,
+            p.keperluan,
+            p.status
+        FROM peminjaman p
+        JOIN users u ON p.user_id = u.user_id
+        JOIN ruang r ON p.ruang_id = r.ruang_id
+        WHERE p.status = 'konfirmasi_admin'
+        ORDER BY p.peminjaman_id DESC
+    ";
+
+        $this->db->query($query);
+        return $this->db->resultSet();
+    }
+
+    public function approveWarek($id)
+{
+    $this->db->query("
+        UPDATE peminjaman 
+        SET status = 'konfirmasi_warek' 
+        WHERE peminjaman_id = :id
+    ");
+    $this->db->bind(':id', $id);
+    return $this->db->execute();
+}
+    public function rejectWarek($id, $alasan)
+    {
+        $this->db->query("
+            UPDATE peminjaman 
+            SET status = 'ditolak',
+            alasan_warek = :alasan 
+            WHERE peminjaman_id = :id
+        ");
+        $this->db->bind(':id', $id);
+        $this->db->bind(':alasan', $alasan);
+        return $this->db->execute();
+    }
+
+
+    // -------------------------------
     // 5. (Opsional) Ambil daftar permintaan pengembalian
     // -------------------------------
     public function getPengembalian()
@@ -136,7 +203,4 @@ class Peminjaman_model
         $this->db->bind('reason', $reason);
         return $this->db->execute();
     }
-
-    
-
 }

@@ -148,7 +148,7 @@ function checkLoginStatus() {
         modal.classList.add('active');
     } else {
         // Redirect to peminjaman page
-        window.location.href = 'app/view/peminjam/cek_ketersediaan.php';
+        window.location.href = '<?= BASEURL ?>/peminjam/cek_ketersediaan.php';
     }
 }
 

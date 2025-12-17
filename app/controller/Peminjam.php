@@ -2,37 +2,75 @@
 
 class Peminjam extends Controller
 {
+
+    public function __construct()
+    {
+        // 🔐 CEK LOGIN
+        if (!isset($_SESSION['user'])) {
+            header('Location: ' . BASEURL . '/home/login');
+            exit;
+        }
+
+        // 🔒 CEK ROLE
+        if ($_SESSION['user']['role'] !== 'peminjam') {
+            header('Location: ' . BASEURL . '/home');
+            exit;
+        }
+    }
+
     public function index()
     {
-        $this->view('peminjam/dashboard');
+        $data['judul'] = 'Dashboard';
+        $this->view('home/index', $data);
     }
+
 
     public function cek_ketersediaan()
     {
-        $ruangan = $this->model('Ruang_model')->getAll();
-        $this->view('peminjam/cek_ketersediaan', $ruangan);
+        $data['judul'] = 'Cek Ketersediaan Ruang';
+        $data['ruangan'] = $this->model('Ruang_model')->getAll();
+        $this->view('peminjam/cek_ketersediaan', $data);
     }
 
     public function form_peminjaman()
     {
-        $ruangan = $this->model('Ruang_model')->getAll();
-        $this->view('peminjam/form_peminjaman', $ruangan);
+        $ruang_id = $_GET['ruang_id'] ?? '';
+        $tanggal  = $_GET['tanggal'] ?? date('Y-m-d');
+
+        $data['judul'] = 'Form Peminjaman';
+        $data['ruang_id'] = $ruang_id;
+        $data['tanggal'] = $tanggal;
+
+        // OPTIONAL: ambil detail ruang
+        if ($ruang_id) {
+            $data['ruangDipilih'] = $this->model('Ruang_model')->getById($ruang_id);
+        } else {
+            $data['ruangDipilih'] = null;
+        }
+
+        $data['ruangan'] = $this->model('Ruang_model')->getAll();
+
+        $this->view('peminjam/form_peminjaman', $data);
     }
+
 
     public function peminjaman_process()
     {
         $data = [
-            'user_id'   => $_SESSION['user']['id'],
-            'ruang_id'  => $_POST['ruang_id'],
-            'tgl_mulai' => $_POST['tgl_mulai'],
-            'tgl_selesai' => $_POST['tgl_selesai'],
-            'kegiatan'  => $_POST['kegiatan'],
-            'status'    => 'pending'
+            'user_id'         => $_SESSION['user']['user_id'],
+            'ruang_id'        => $_POST['ruang_id'],
+            'tanggal_mulai'   => $_POST['tanggal_mulai'] . ' ' . $_POST['jam_mulai'],
+            'tanggal_selesai' => $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'],
+            'keperluan'       => $_POST['keperluan'],
+            'status'          => 'pending'
         ];
 
-        $this->model("Peminjaman_model")->add($data);
-        header("Location:" . BASEURL . "/peminjam/riwayat");
+        $this->model('Peminjaman_model')->add($data);
+
+        header("Location: " . BASEURL . "/peminjam/riwayat");
+        exit;
     }
+
 
     public function riwayat()
     {

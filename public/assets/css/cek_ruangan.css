@@ -16,8 +16,8 @@
     --aqua-gray: #98AEA4;
     --regatta: #4A6FA5;
     --rinsing-rivulet: #5DBAA4;
-    --dusky-citron: #D4BD7D;
-    
+    --dusky-citron: var(--white);
+
     /* Additional Colors */
     --white: #FFFFFF;
     --text-dark: #2C3E50;
@@ -265,10 +265,18 @@ body {
     font-weight: 500;
 }
 
-.status-info strong {
-    color: var(--dusky-citron);
+/* .status-info strong {
+    color: var(--white);
     font-weight: 700;
+} */
+
+.tanggal-cek {
+    color: var(--white);
+    font-size: 1.2rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
 }
+
 
 /* ============================================
    MAIN CONTENT
@@ -346,7 +354,7 @@ body {
     accent-color: var(--alaskan-blue);
 }
 
-.filter-item input[type="radio"]:checked + span {
+.filter-item input[type="radio"]:checked+span {
     font-weight: 700;
     color: var(--alaskan-blue);
 }
@@ -570,7 +578,7 @@ body {
         grid-template-columns: 250px 1fr;
         gap: 2rem;
     }
-    
+
     .room-grid {
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     }
@@ -581,11 +589,11 @@ body {
         grid-template-columns: 220px 1fr;
         gap: 1.5rem;
     }
-    
+
     .room-grid {
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     }
-    
+
     .search-container h1 {
         font-size: 2.2rem;
     }
@@ -596,50 +604,50 @@ body {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .nav-menu {
         gap: 1rem;
         flex-wrap: wrap;
         justify-content: center;
     }
-    
+
     .nav-logo h2 {
         font-size: 1.8rem;
     }
-    
+
     .search-section {
         padding: 2.5rem 1.5rem;
     }
-    
+
     .search-container h1 {
         font-size: 2rem;
     }
-    
+
     .search-form {
         flex-direction: column;
         padding: 1.5rem;
     }
-    
+
     .form-group {
         min-width: 100%;
     }
-    
+
     .btn-cek {
         width: 100%;
     }
-    
+
     .main-content {
         grid-template-columns: 1fr;
         padding: 0 1rem;
         margin: 2rem auto;
         gap: 2rem;
     }
-    
+
     .sidebar {
         position: static;
         width: 100%;
     }
-    
+
     .room-grid {
         grid-template-columns: 1fr;
     }
@@ -649,57 +657,57 @@ body {
     .navbar {
         padding: 1rem;
     }
-    
+
     .nav-logo h2 {
         font-size: 1.5rem;
     }
-    
+
     .nav-actions {
         gap: 0.5rem;
     }
-    
+
     .nav-icon {
         padding: 0.5rem;
     }
-    
+
     .search-section {
         padding: 2rem 1rem;
     }
-    
+
     .search-container h1 {
         font-size: 1.7rem;
     }
-    
+
     .search-form {
         padding: 1rem;
     }
-    
+
     .form-group label {
         font-size: 0.85rem;
     }
-    
+
     .form-group input {
         padding: 0.875rem 1rem;
         font-size: 0.95rem;
     }
-    
+
     .btn-cek {
         padding: 0.875rem 2rem;
         font-size: 0.95rem;
     }
-    
+
     .room-card {
         padding: 1.5rem;
     }
-    
+
     .room-header h3 {
         font-size: 1.3rem;
     }
-    
+
     .room-info p {
         font-size: 0.9rem;
     }
-    
+
     .btn-pinjam,
     .btn-penuh {
         font-size: 0.95rem;
@@ -737,6 +745,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -747,6 +756,7 @@ body {
     0%, 100% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.05);
     }
@@ -756,6 +766,7 @@ body {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }

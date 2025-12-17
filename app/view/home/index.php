@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="id">
+
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyRoom - Sistem Peminjaman Ruang ITS Mandala</title>
-    <link rel="stylesheet" href="../../../public/assets/css/landing.css">
+    <link rel="stylesheet" href="<?= BASEURL ?>/assets/css/landing.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+
+
 <body>
     <!-- Navbar -->
     <nav class="navbar" id="navbar">
@@ -65,9 +69,11 @@
                 <p class="peminjaman-description">
                     Sebelum Anda mengeklik tombol "Pinjam Ruangan", pastikan Anda telah memeriksa ketersediaan jadwal secara real-time melalui kalender interaktif kami untuk menghindari double booking; proses di MyRoom sepenuhnya paperless, cepat, dan status peminjaman akan diinformasikan secara otomatis melalui notifikasi instan.
                 </p>
-                <button class="btn-primary" onclick="checkLoginStatus()">
-                    <i class="fas fa-calendar-check"></i> Ajukan Peminjaman Sekarang
+                <button class="btn btn-primary"
+                    onclick="window.location.href='<?= BASEURL; ?>/peminjam/ketersediaan_ruang'">
+                    <i class="fas fa-door-open"></i> Cek Ketersediaan Ruang
                 </button>
+
             </div>
         </div>
     </section>
@@ -251,12 +257,17 @@
             <div class="contact-grid">
                 <div class="contact-map fade-in">
                     <h3>Peta Lokasi ITS Mandala</h3>
-                    <iframe 
+                    <iframe
+                        <iframe
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3949.3!2d113.7!3d-8.17!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zOMKwMTAnMTIuMCJTIDExM8KwNDInMDAuMCJF!5e0!3m2!1sen!2sid!4v1234567890"
-                        width="100%" 
-                        height="350" 
-                        style="border:0; border-radius: 15px;" 
-                        allowfullscreen="" 
+                        width="100%"
+                        height="350"
+                        style="border:0; border-radius: 15px;"
+                        allowfullscreen=""
+                        width="100%"
+                        height="350"
+                        style="border:0; border-radius: 15px;"
+                        allowfullscreen=""
                         loading="lazy">
                     </iframe>
                 </div>
@@ -315,21 +326,22 @@
                 <div class="footer-col">
                     <h4>Social Media</h4>
                     <div class="social-links">
-                       <a href="https://youtube.com/@itsmandala2788" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-youtube"></i>
-                        </a>
+                        <a href="https://youtube.com/@itsmandala2788" target="_blank" rel="noopener noreferrer">
+                            <a href="https://youtube.com/@itsmandala2788" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-youtube"></i>
+                            </a>
 
-                        <a href="https://instagram.com/itsmandala.official" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-instagram"></i>
-                        </a>
+                            <a href="https://instagram.com/itsmandala.official" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-instagram"></i>
+                            </a>
 
-                        <a href="https://facebook.com/stiemandala.akunresmi" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
+                            <a href="https://facebook.com/stiemandala.akunresmi" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
 
-                        <a href="https://tiktok.com/@itsm.top" target="_blank" rel="noopener noreferrer">
-                            <i class="fab fa-tiktok"></i>
-                        </a>
+                            <a href="https://tiktok.com/@itsm.top" target="_blank" rel="noopener noreferrer">
+                                <i class="fab fa-tiktok"></i>
+                            </a>
                     </div>
                 </div>
             </div>
@@ -359,4 +371,6 @@
 
     <script src="../../../public/assets/js/landing.js"></script>
 </body>
+
+
 </html>

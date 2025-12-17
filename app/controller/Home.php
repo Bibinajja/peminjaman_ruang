@@ -9,20 +9,24 @@ class Home extends Controller
         $this->view('templates/footer');
     }
 
-    public function login()
+
+    public function register()
     {
         $data['judul'] = 'Login Page';
 
         $this->view('home/login', $data);
         $this->view('templates/footer');
     }
-    public function register()
-    {
-        $data['judul'] = 'register Page';
 
-        $this->view('home/register', $data);
+    public function login()
+    {
+
+        $data['judul'] = 'Login Page';
+
+        $this->view('home/login', $data);
         $this->view('templates/footer');
     }
+
 
     public function auth()
     {
@@ -37,6 +41,7 @@ class Home extends Controller
             $_SESSION['user'] = [
                 'user_id' => $user['user_id'],
                 'nama'    => $user['nama'],
+                'email' => $user['email'],
                 'role'    => $user['role']
             ];
 
