@@ -1,41 +1,35 @@
-// Sample data for demonstration - Replace with actual data from database
-const peminjamanData = {
-    'PM001': {
-        id: 'PM001',
-        user: 'Ahmad Fauzi',
-        room: 'Ruang Seminar A',
-        start: '15 Desember 2024 - 08:00',
-        end: '15 Desember 2024 - 12:00',
-        purpose: 'Seminar nasional tentang teknologi informasi dan digitalisasi pendidikan tinggi. Acara ini akan dihadiri oleh 150 peserta dari berbagai universitas di Indonesia. Kegiatan meliputi presentasi, diskusi panel, dan networking session.'
-    },
-    'PM002': {
-        id: 'PM002',
-        user: 'Siti Nurhaliza',
-        room: 'Lab Komputer 1',
-        start: '14 Desember 2024 - 13:00',
-        end: '14 Desember 2024 - 16:00',
-        purpose: 'Praktikum pemrograman web untuk mahasiswa semester 3. Kegiatan mencakup pembelajaran HTML, CSS, dan JavaScript dengan metode hands-on practice. Peserta berjumlah 40 mahasiswa.'
-    },
-    'PM003': {
-        id: 'PM003',
-        user: 'Budi Santoso',
-        room: 'Aula Utama',
-        start: '20 Desember 2024 - 09:00',
-        end: '20 Desember 2024 - 15:00',
-        purpose: 'Wisuda angkatan 2024 semester genap. Acara akan dihadiri oleh 300 wisudawan, keluarga, dan undangan. Rundown acara meliputi prosesi wisuda, pembacaan ijazah, foto bersama, dan resepsi.'
-    },
-    'PM004': {
-        id: 'PM004',
-        user: 'Dewi Lestari',
-        room: 'Ruang Rapat B',
-        start: '18 Desember 2024 - 10:00',
-        end: '18 Desember 2024 - 14:00',
-        purpose: 'Rapat koordinasi program kerja tahun 2025 untuk seluruh ketua program studi. Agenda meliputi evaluasi program kerja 2024, perencanaan strategis 2025, dan pembahasan anggaran.'
-    }
-};
-
 // Current booking ID for modal actions
 let currentBookingId = null;
+
+// Convert PHP data to proper format
+const peminjamanDataMap = {};
+if (typeof peminjamanData !== 'undefined') {
+    peminjamanData.forEach(item => {
+        peminjamanDataMap[item.peminjaman_id] = {
+            id: item.peminjaman_id,
+            user: item.nama_peminjam,
+            email: item.email_peminjam,
+            room: item.nama_ruang,
+            location: item.lokasi || '-',
+            capacity: item.kapasitas + ' orang',
+            start: new Date(item.tanggal_mulai).toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }),
+            end: new Date(item.tanggal_selesai).toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }),
+            purpose: item.keperluan || 'Tidak ada keterangan'
+        };
+    });
+}
 
 // Navbar Scroll Effect
 window.addEventListener('scroll', () => {
@@ -100,6 +94,8 @@ if (searchInput) {
                 card.style.display = 'none';
             }
         });
+
+        updateBadgeCount();
     });
 }
 
@@ -135,18 +131,23 @@ filterBtns.forEach(btn => {
                 card.style.animation = 'fadeInUp 0.5s ease';
             }, 10);
         });
+
+        updateBadgeCount();
     });
 });
 
 // Show Detail Modal
 function showDetail(bookingId) {
     currentBookingId = bookingId;
-    const data = peminjamanData[bookingId];
+    const data = peminjamanDataMap[bookingId];
 
     if (data) {
-        document.getElementById('detailID').textContent = data.id;
+        document.getElementById('detailID').textContent = 'PM' + String(data.id).padStart(3, '0');
         document.getElementById('detailUser').textContent = data.user;
+        document.getElementById('detailEmail').textContent = data.email;
         document.getElementById('detailRoom').textContent = data.room;
+        document.getElementById('detailLocation').textContent = data.location;
+        document.getElementById('detailCapacity').textContent = data.capacity;
         document.getElementById('detailStart').textContent = data.start;
         document.getElementById('detailEnd').textContent = data.end;
         document.getElementById('detailPurpose').textContent = data.purpose;
@@ -173,63 +174,50 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Approve Booking
-function approveBooking(bookingId) {
+async function approveBooking(bookingId) {
     if (confirm('Apakah Anda yakin ingin menyetujui peminjaman ini?')) {
         // Show loading
         showNotification('Memproses persetujuan...', 'info');
 
-        // Simulate API call
-        setTimeout(() => {
-            // Remove card with animation
-            const card = document.querySelector(`[data-id="${bookingId}"]`);
-            if (card) {
-                card.style.animation = 'fadeOut 0.5s ease';
-                setTimeout(() => {
-                    card.remove();
-                    updateBadgeCount();
-                }, 500);
+        try {
+            const response = await fetch('proses_konfirmasi_warek.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    peminjaman_id: bookingId,
+                    action: 'approve'
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Remove card with animation
+                const card = document.querySelector(`[data-id="${bookingId}"]`);
+                if (card) {
+                    card.style.animation = 'fadeOut 0.5s ease';
+                    setTimeout(() => {
+                        card.remove();
+                        updateBadgeCount();
+
+                        // Check if no more cards
+                        const remainingCards = document.querySelectorAll('.peminjaman-card');
+                        if (remainingCards.length === 0) {
+                            location.reload(); // Reload to show empty state
+                        }
+                    }, 500);
+                }
+
+                showNotification(result.message || 'Peminjaman berhasil disetujui!', 'success');
+            } else {
+                showNotification(result.message || 'Gagal menyetujui peminjaman', 'error');
             }
-
-            showNotification('Peminjaman berhasil disetujui!', 'success');
-
-            // In real implementation, send data to server:
-            // fetch('/api/warek/approve', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ booking_id: bookingId })
-            // });
-        }, 1000);
-    }
-}
-
-// Reject Booking
-function rejectBooking(bookingId) {
-    const reason = prompt('Masukkan alasan penolakan (opsional):');
-
-    if (reason !== null) { // User didn't cancel
-        showNotification('Memproses penolakan...', 'info');
-
-        // Simulate API call
-        setTimeout(() => {
-            // Remove card with animation
-            const card = document.querySelector(`[data-id="${bookingId}"]`);
-            if (card) {
-                card.style.animation = 'fadeOut 0.5s ease';
-                setTimeout(() => {
-                    card.remove();
-                    updateBadgeCount();
-                }, 500);
-            }
-
-            showNotification('Peminjaman telah ditolak!', 'error');
-
-            // In real implementation, send data to server:
-            // fetch('/api/warek/reject', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({ booking_id: bookingId, reason: reason })
-            // });
-        }, 1000);
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Terjadi kesalahan saat memproses persetujuan', 'error');
+        }
     }
 }
 
@@ -238,14 +226,6 @@ function approveFromModal() {
     if (currentBookingId) {
         closeModal();
         approveBooking(currentBookingId);
-    }
-}
-
-// Reject from Modal
-function rejectFromModal() {
-    if (currentBookingId) {
-        closeModal();
-        rejectBooking(currentBookingId);
     }
 }
 
@@ -282,6 +262,7 @@ function showNotification(message, type = 'info') {
         align-items: center;
         gap: 1rem;
         font-weight: 600;
+        max-width: 400px;
     `;
 
     document.body.appendChild(notification);
@@ -328,18 +309,6 @@ document.querySelectorAll('.logout').forEach(link => {
     });
 });
 
-// Auto-refresh data (optional)
-function refreshData() {
-    console.log('Refreshing peminjaman data...');
-    // In real implementation:
-    // fetch('/api/warek/peminjaman')
-    //     .then(response => response.json())
-    //     .then(data => updateCards(data));
-}
-
-// Refresh every 2 minutes
-// setInterval(refreshData, 120000);
-
 // Add CSS animations dynamically
 const style = document.createElement('style');
 style.textContent = `
@@ -378,43 +347,12 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Bulk Actions (Optional Enhancement)
-function approveAllPending() {
-    const pendingCards = document.querySelectorAll('.badge-pending');
-    if (pendingCards.length === 0) {
-        showNotification('Tidak ada peminjaman yang menunggu persetujuan', 'info');
-        return;
-    }
-
-    if (confirm(`Apakah Anda yakin ingin menyetujui ${pendingCards.length} peminjaman sekaligus?`)) {
-        showNotification('Memproses persetujuan massal...', 'info');
-        // Implementation for bulk approval
-    }
-}
-
-// Export to PDF/Excel (Optional Enhancement)
-function exportData(format) {
-    showNotification(`Mengekspor data ke ${format.toUpperCase()}...`, 'info');
-    // Implementation for data export
-}
-
-// Print functionality
-function printList() {
-    window.print();
-}
-
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
     // Alt + S for search
     if (e.altKey && e.key === 's') {
         e.preventDefault();
         searchInput.focus();
-    }
-
-    // Alt + A for approve all (if needed)
-    if (e.altKey && e.key === 'a') {
-        e.preventDefault();
-        // approveAllPending();
     }
 });
 

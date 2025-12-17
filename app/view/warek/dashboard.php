@@ -1,3 +1,67 @@
+<?php
+session_start();
+
+// Cek apakah user sudah login dan role-nya warek
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'warek') {
+    header('Location: ../../../index.php');
+    exit;
+}
+
+// Koneksi database
+require_once '../../core/Database.php';
+$db = new Database();
+
+/*
+|--------------------------------------------------------------------------
+| STATISTIK DASHBOARD WAREK
+|--------------------------------------------------------------------------
+| Warek hanya menangani:
+| - menunggu_warek (belum dikonfirmasi)
+| - diterima (sudah dikonfirmasi warek)
+*/
+
+// Menunggu konfirmasi Warek
+$db->query("
+    SELECT COUNT(*) AS total
+    FROM peminjaman
+    WHERE status = 'konfirmasi_admin'
+");
+$pendingCount = $db->single()['total'] ?? 0;
+
+// Sudah diterima (final)
+$db->query("
+    SELECT COUNT(*) AS total
+    FROM peminjaman
+    WHERE status = 'diterima'
+");
+$approvedCount = $db->single()['total'] ?? 0;
+
+// Total pengajuan yang ditangani Warek
+$totalCount = $pendingCount + $approvedCount;
+
+
+$db->query("
+    SELECT
+        p.peminjaman_id,
+        p.tanggal_mulai,
+        p.tanggal_selesai,
+        p.keperluan,
+        p.status,
+        p.created_at,
+        r.nama_ruang,
+        u.nama AS peminjam_nama
+    FROM peminjaman p
+    JOIN ruang r ON p.ruang_id = r.ruang_id
+    JOIN users u ON p.user_id = u.user_id
+    WHERE p.status = 'diterima'
+    ORDER BY p.created_at DESC
+");
+$historyData = $db->resultSet();
+
+// Nama Warek
+$namaWarek = $_SESSION['nama'] ?? 'Warek';
+?>
+
 <!DOCTYPE html>
 <html lang="id">
 
@@ -18,7 +82,6 @@
             </div>
             <ul class="nav-menu" id="navMenu">
                 <li><a href="dashboard.php" class="nav-link active">Home</a></li>
-                <li><a href="peminjaman.php" class="nav-link">Peminjaman</a></li>
             </ul>
             <div class="nav-right">
                 <div class="profile-dropdown">
@@ -31,10 +94,6 @@
                         <a href="profile.php" class="dropdown-item">
                             <i class="fas fa-user"></i>
                             <span>Lihat Profil</span>
-                        </a>
-                        <a href="settings.php" class="dropdown-item">
-                            <i class="fas fa-cog"></i>
-                            <span>Pengaturan</span>
                         </a>
                         <div class="dropdown-divider"></div>
                         <a href="../../../index.php" class="dropdown-item logout">
@@ -61,7 +120,7 @@
                     <i class="fas fa-user-shield"></i>
                 </div>
                 <div class="welcome-content">
-                    <h1 class="welcome-title">Selamat Datang Warek</h1>
+                    <h1 class="welcome-title">Selamat Datang, <?php echo htmlspecialchars($namaWarek); ?></h1>
                     <div class="welcome-badge">
                         <i class="fas fa-crown"></i>
                         <span>Wakil Rektor</span>
@@ -103,7 +162,7 @@
                         <i class="fas fa-clock"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number">12</h3>
+                        <h3 class="stat-number" data-target="<?php echo $pendingCount; ?>">0</h3>
                         <p class="stat-label">Menunggu Konfirmasi</p>
                     </div>
                 </div>
@@ -112,7 +171,7 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number">48</h3>
+                        <h3 class="stat-number" data-target="<?php echo $approvedCount; ?>">0</h3>
                         <p class="stat-label">Telah Dikonfirmasi</p>
                     </div>
                 </div>
@@ -121,7 +180,7 @@
                         <i class="fas fa-clipboard-list"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number">65</h3>
+                        <h3 class="stat-number" data-target="<?php echo $totalCount; ?>">0</h3>
                         <p class="stat-label">Total Pengajuan</p>
                     </div>
                 </div>
@@ -144,73 +203,120 @@
                 </div>
             </div>
 
-            <!-- Quick Access -->
-            <div class="quick-access">
-                <h2 class="section-title">Akses Cepat</h2>
-                <div class="quick-grid">
-                    <a href="peminjaman.php" class="quick-card">
-                        <div class="quick-icon">
-                            <i class="fas fa-list-check"></i>
-                        </div>
-                        <h3 class="quick-title">Daftar Peminjaman</h3>
-                        <p class="quick-desc">Lihat semua pengajuan peminjaman ruangan</p>
-                    </a>
-                    <a href="history.php" class="quick-card">
-                        <div class="quick-icon">
-                            <i class="fas fa-history"></i>
-                        </div>
-                        <h3 class="quick-title">Riwayat</h3>
-                        <p class="quick-desc">Lihat riwayat konfirmasi peminjaman</p>
-                    </a>
-                    <a href="reports.php" class="quick-card">
-                        <div class="quick-icon">
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
-                        <h3 class="quick-title">Laporan</h3>
-                        <p class="quick-desc">Lihat laporan dan statistik peminjaman</p>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
+            <!-- Riwayat Konfirmasi -->
             <div class="recent-activity">
-                <h2 class="section-title">Aktivitas Terbaru</h2>
-                <div class="activity-card">
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon approved">
-                                <i class="fas fa-check"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h4 class="activity-title">Peminjaman Disetujui</h4>
-                                <p class="activity-desc">Ruang Seminar A - 15 Desember 2024</p>
-                                <span class="activity-time">2 jam yang lalu</span>
-                            </div>
+                <h2 class="section-title">Riwayat Konfirmasi</h2>
+                <div class="history-table-container">
+                    <?php if (count($historyData) > 0): ?>
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Ruangan</th>
+                                    <th>Peminjam</th>
+                                    <th>Tanggal Peminjaman</th>
+                                    <th>Keperluan</th>
+                                    <th>Status</th>
+                                    <th>Alasan</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $no = 1;
+                                foreach ($historyData as $row):
+                                    // Format status
+                                    $statusClass = '';
+                                    $statusText = '';
+                                    $alasan = '';
+
+                                    if ($row['status'] == 'konfirmasi_warek') {
+                                        $statusClass = 'approved';
+                                        $statusText = 'Disetujui Warek';
+                                        $alasan = $row['alasan_warek'] ?? '';
+                                    } elseif ($row['status'] == 'ditolak_admin') {
+                                        $statusClass = 'rejected';
+                                        $statusText = 'Ditolak Admin';
+                                        $alasan = $row['alasan_penolakan_admin'] ?? '';
+                                    } elseif ($row['status'] == 'diterima_admin') {
+                                        $statusClass = 'approved';
+                                        $statusText = 'Disetujui Admin';
+                                        $alasan = '';
+                                    }
+
+                                    // Format tanggal Indonesia
+                                    $bulan = [
+                                        1 => 'Jan',
+                                        2 => 'Feb',
+                                        3 => 'Mar',
+                                        4 => 'Apr',
+                                        5 => 'Mei',
+                                        6 => 'Jun',
+                                        7 => 'Jul',
+                                        8 => 'Agu',
+                                        9 => 'Sep',
+                                        10 => 'Okt',
+                                        11 => 'Nov',
+                                        12 => 'Des'
+                                    ];
+
+                                    $tglMulai = date('d', strtotime($row['tanggal_mulai'])) . ' ' .
+                                        $bulan[date('n', strtotime($row['tanggal_mulai']))] . ' ' .
+                                        date('Y', strtotime($row['tanggal_mulai']));
+
+                                    $tglSelesai = date('d', strtotime($row['tanggal_selesai'])) . ' ' .
+                                        $bulan[date('n', strtotime($row['tanggal_selesai']))] . ' ' .
+                                        date('Y', strtotime($row['tanggal_selesai']));
+
+                                    $tanggal = $tglMulai . ' - ' . $tglSelesai;
+                                ?>
+                                    <tr>
+                                        <td class="table-number"><?php echo $no++; ?></td>
+                                        <td>
+                                            <div class="ruang-name"><?php echo htmlspecialchars($row['nama_ruang']); ?></div>
+                                        </td>
+                                        <td><?php echo htmlspecialchars($row['peminjam_nama']); ?></td>
+                                        <td>
+                                            <div class="date-range"><?php echo $tanggal; ?></div>
+                                        </td>
+                                        <td>
+                                            <div class="keperluan-text" title="<?php echo htmlspecialchars($row['keperluan']); ?>">
+                                                <?php echo htmlspecialchars($row['keperluan']); ?>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge <?php echo $statusClass; ?>">
+                                                <i class="fas fa-<?php echo $statusClass == 'approved' ? 'check-circle' : 'times-circle'; ?>"></i>
+                                                <?php echo $statusText; ?>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <?php
+                                            if (!empty($alasan)) {
+                                                echo '<div class="alasan-text" title="' . htmlspecialchars($alasan) . '">';
+                                                echo htmlspecialchars($alasan);
+                                                echo '</div>';
+                                            } else {
+                                                echo '<span style="color: #999;">-</span>';
+                                            }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <a href="detail_peminjaman.php?id=<?php echo $row['peminjaman_id']; ?>" class="view-details-btn">
+                                                <i class="fas fa-eye"></i>
+                                                Detail
+                                            </a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <div class="no-data">
+                            <i class="fas fa-inbox"></i>
+                            <p>Belum ada riwayat konfirmasi</p>
                         </div>
-                        <div class="activity-item">
-                            <div class="activity-icon pending">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h4 class="activity-title">Menunggu Konfirmasi</h4>
-                                <p class="activity-desc">Lab Komputer 1 - 18 Desember 2024</p>
-                                <span class="activity-time">5 jam yang lalu</span>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon rejected">
-                                <i class="fas fa-times"></i>
-                            </div>
-                            <div class="activity-content">
-                                <h4 class="activity-title">Peminjaman Ditolak</h4>
-                                <p class="activity-desc">Aula Utama - 20 Desember 2024</p>
-                                <span class="activity-time">1 hari yang lalu</span>
-                            </div>
-                        </div>
-                    </div>
-                    <a href="history.php" class="view-all-link">
-                        Lihat Semua Aktivitas <i class="fas fa-arrow-right"></i>
-                    </a>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

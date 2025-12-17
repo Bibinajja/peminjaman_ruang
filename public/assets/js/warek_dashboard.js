@@ -1,14 +1,22 @@
+// ============================================================================
+// WAREK DASHBOARD - JAVASCRIPT
+// ============================================================================
+
 // Navbar Scroll Effect
 window.addEventListener('scroll', () => {
     const navbar = document.getElementById('navbar');
-    if (window.scrollY > 50) {
-        navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
-    } else {
-        navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+    if (navbar) {
+        if (window.scrollY > 50) {
+            navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
+        } else {
+            navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+        }
     }
 });
 
-// Mobile Menu Toggle
+// ============================================================================
+// MOBILE MENU TOGGLE
+// ============================================================================
 const hamburger = document.getElementById('hamburger');
 const navMenu = document.getElementById('navMenu');
 
@@ -25,9 +33,19 @@ if (hamburger && navMenu) {
             hamburger.classList.remove('active');
         });
     });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+            navMenu.classList.remove('active');
+            hamburger.classList.remove('active');
+        }
+    });
 }
 
-// Profile Dropdown Toggle
+// ============================================================================
+// PROFILE DROPDOWN TOGGLE
+// ============================================================================
 const profileBtn = document.getElementById('profileBtn');
 const profileDropdown = document.querySelector('.profile-dropdown');
 
@@ -48,33 +66,43 @@ if (profileBtn && profileDropdown) {
     const dropdownMenu = document.getElementById('dropdownMenu');
     if (dropdownMenu) {
         dropdownMenu.addEventListener('click', (e) => {
-            e.stopPropagation();
+            // Allow links to work
+            if (e.target.tagName !== 'A') {
+                e.stopPropagation();
+            }
         });
     }
 }
 
-// Smooth Scrolling for anchor links
+// ============================================================================
+// SMOOTH SCROLLING
+// ============================================================================
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const offsetTop = target.offsetTop - 80;
-            window.scrollTo({
-                top: offsetTop,
-                behavior: 'smooth'
-            });
+        const href = this.getAttribute('href');
+        if (href !== '#') {
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) {
+                const offsetTop = target.offsetTop - 80;
+                window.scrollTo({
+                    top: offsetTop,
+                    behavior: 'smooth'
+                });
+            }
         }
     });
 });
 
-// Intersection Observer for Fade-in Animations
+// ============================================================================
+// INTERSECTION OBSERVER FOR FADE-IN ANIMATIONS
+// ============================================================================
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -50px 0px'
 };
 
-const observer = new IntersectionObserver((entries) => {
+const fadeObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
@@ -83,65 +111,106 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe elements for animation
+// ============================================================================
+// INITIALIZE ANIMATIONS ON DOM LOAD
+// ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Animate cards on scroll
     const animatedElements = document.querySelectorAll(
-        '.info-card, .stat-card, .action-card, .quick-card, .activity-card'
+        '.info-card, .stat-card, .action-card, .history-table-container'
     );
 
     animatedElements.forEach(el => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
         el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(el);
+        fadeObserver.observe(el);
     });
+
+    // Initialize counter animations
+    initializeCounterAnimations();
+
+    // Add active state to current page
+    setActiveNavLink();
 });
 
-// Counter Animation for Statistics
-function animateCounter(element, target, duration = 2000) {
+// ============================================================================
+// COUNTER ANIMATION FOR STATISTICS
+// ============================================================================
+function animateCounter(element, target, duration = 1500) {
     let current = 0;
-    const increment = target / (duration / 16); // 60fps
+    const increment = target / (duration / 16);
+    const startTime = performance.now();
 
-    const updateCounter = () => {
-        current += increment;
-        if (current < target) {
-            element.textContent = Math.floor(current);
+    const updateCounter = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        current = Math.floor(target * progress);
+        element.textContent = current;
+
+        if (progress < 1) {
             requestAnimationFrame(updateCounter);
         } else {
             element.textContent = target;
         }
     };
 
-    updateCounter();
+    requestAnimationFrame(updateCounter);
 }
 
-// Animate counters when they come into view
-const statObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
-            const number = entry.target.querySelector('.stat-number');
-            if (number) {
-                const target = parseInt(number.textContent);
-                number.textContent = '0';
-                animateCounter(number, target);
-                entry.target.classList.add('animated');
+// Initialize counter animations when visible
+function initializeCounterAnimations() {
+    const statObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                const number = entry.target.querySelector('.stat-number');
+                if (number) {
+                    const target = parseInt(number.getAttribute('data-target'));
+                    if (!isNaN(target)) {
+                        number.textContent = '0';
+                        animateCounter(number, target);
+                        entry.target.classList.add('animated');
+                    }
+                }
             }
+        });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.stat-card').forEach(card => {
+        statObserver.observe(card);
+    });
+}
+
+// ============================================================================
+// SET ACTIVE NAVIGATION LINK
+// ============================================================================
+function setActiveNavLink() {
+    const currentPage = window.location.pathname.split('/').pop();
+    document.querySelectorAll('.nav-link').forEach(link => {
+        const linkPage = link.getAttribute('href');
+        if (linkPage === currentPage || (currentPage === '' && linkPage === 'dashboard.php')) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
         }
     });
-}, { threshold: 0.5 });
+}
 
-document.querySelectorAll('.stat-card').forEach(card => {
-    statObserver.observe(card);
-});
-
-// Add hover effect sound feedback (optional)
-document.querySelectorAll('.stat-card, .quick-card, .activity-item').forEach(card => {
-    card.addEventListener('mouseenter', function () {
-        this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+// ============================================================================
+// CONFIRM BEFORE LOGOUT
+// ============================================================================
+document.querySelectorAll('.logout').forEach(link => {
+    link.addEventListener('click', (e) => {
+        if (!confirm('Apakah Anda yakin ingin keluar?')) {
+            e.preventDefault();
+        }
     });
 });
 
-// Welcome animation on page load
+// ============================================================================
+// WELCOME ANIMATION ON PAGE LOAD
+// ============================================================================
 window.addEventListener('load', () => {
     const welcomeCard = document.querySelector('.welcome-card');
     if (welcomeCard) {
@@ -151,107 +220,73 @@ window.addEventListener('load', () => {
     }
 });
 
-// Auto-refresh activity feed (optional - untuk real-time updates)
-function refreshActivityFeed() {
-    // Implementasi fetch data terbaru dari server
-    console.log('Refreshing activity feed...');
-    // Contoh: fetch('/api/warek/recent-activities')
-    //     .then(response => response.json())
-    //     .then(data => updateActivityList(data));
-}
+// ============================================================================
+// TABLE INTERACTIONS
+// ============================================================================
+document.addEventListener('DOMContentLoaded', () => {
+    // Add hover effect to table rows
+    const tableRows = document.querySelectorAll('.history-table tbody tr');
+    tableRows.forEach(row => {
+        row.addEventListener('mouseenter', function () {
+            this.style.transform = 'scale(1.005)';
+        });
 
-// Refresh setiap 5 menit
-// setInterval(refreshActivityFeed, 300000);
+        row.addEventListener('mouseleave', function () {
+            this.style.transform = 'scale(1)';
+        });
+    });
 
-// Confirm before logout
-document.querySelectorAll('.logout').forEach(link => {
-    link.addEventListener('click', (e) => {
-        if (!confirm('Apakah Anda yakin ingin keluar?')) {
-            e.preventDefault();
+    // Tooltip for truncated text
+    const truncatedElements = document.querySelectorAll('.keperluan-text, .alasan-text');
+    truncatedElements.forEach(el => {
+        if (el.scrollWidth > el.clientWidth) {
+            el.style.cursor = 'help';
         }
     });
 });
 
-// Add active state to current page in navigation
-const currentPage = window.location.pathname.split('/').pop();
-document.querySelectorAll('.nav-link').forEach(link => {
-    const linkPage = link.getAttribute('href');
-    if (linkPage === currentPage) {
-        link.classList.add('active');
-    }
-});
-
-// Tooltip functionality (optional)
-const tooltipTriggers = document.querySelectorAll('[data-tooltip]');
-tooltipTriggers.forEach(trigger => {
-    trigger.addEventListener('mouseenter', function () {
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        tooltip.textContent = this.getAttribute('data-tooltip');
-        document.body.appendChild(tooltip);
-
-        const rect = this.getBoundingClientRect();
-        tooltip.style.cssText = `
-            position: fixed;
-            top: ${rect.bottom + 10}px;
-            left: ${rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2)}px;
-            background: #333;
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            z-index: 10000;
-            animation: fadeIn 0.3s ease;
-        `;
-
-        this._tooltip = tooltip;
-    });
-
-    trigger.addEventListener('mouseleave', function () {
-        if (this._tooltip) {
-            this._tooltip.remove();
-            delete this._tooltip;
-        }
-    });
-});
-
-// Print functionality for reports (optional)
-function printReport() {
-    window.print();
-}
-
-// Export data functionality (optional)
-function exportData(format) {
-    console.log(`Exporting data in ${format} format...`);
-    // Implementasi export ke CSV, PDF, Excel, dll
-}
-
-// Search functionality (optional)
-const searchInput = document.querySelector('.search-input');
-if (searchInput) {
-    searchInput.addEventListener('input', function (e) {
-        const searchTerm = e.target.value.toLowerCase();
-        // Implementasi filter/search logic
-        console.log('Searching for:', searchTerm);
-    });
-}
-
-// Notification system (optional)
+// ============================================================================
+// NOTIFICATION SYSTEM
+// ============================================================================
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    notification.textContent = message;
+
+    // Set icon based on type
+    let icon = 'fa-info-circle';
+    let bgColor = '#3498db';
+
+    if (type === 'success') {
+        icon = 'fa-check-circle';
+        bgColor = '#27ae60';
+    } else if (type === 'error') {
+        icon = 'fa-times-circle';
+        bgColor = '#e74c3c';
+    } else if (type === 'warning') {
+        icon = 'fa-exclamation-triangle';
+        bgColor = '#f39c12';
+    }
+
+    notification.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${message}</span>
+    `;
+
     notification.style.cssText = `
         position: fixed;
         top: 100px;
         right: 20px;
-        background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+        background: ${bgColor};
         color: white;
-        padding: 1rem 2rem;
+        padding: 1rem 1.5rem;
         border-radius: 12px;
         box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         z-index: 10000;
         animation: slideInRight 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-weight: 500;
     `;
 
     document.body.appendChild(notification);
@@ -263,15 +298,89 @@ function showNotification(message, type = 'info') {
 }
 
 // Example: Show welcome notification on first visit
-const isFirstVisit = !localStorage.getItem('warek_visited');
+const isFirstVisit = !sessionStorage.getItem('warek_visited_today');
 if (isFirstVisit) {
-    setTimeout(() => {
-        showNotification('Selamat datang di Dashboard Warek!', 'success');
-        localStorage.setItem('warek_visited', 'true');
-    }, 1000);
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            showNotification('Selamat datang di Dashboard Warek!', 'success');
+            sessionStorage.setItem('warek_visited_today', 'true');
+        }, 1000);
+    });
 }
 
-// Add CSS animations dynamically
+// ============================================================================
+// AUTO REFRESH FUNCTIONALITY (Optional - for real-time updates)
+// ============================================================================
+let autoRefreshInterval = null;
+
+function enableAutoRefresh(intervalMinutes = 5) {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+    }
+
+    autoRefreshInterval = setInterval(() => {
+        console.log('Auto-refreshing statistics...');
+        // You can implement AJAX call here to refresh stats without page reload
+        // Example: fetchUpdatedStats();
+    }, intervalMinutes * 60 * 1000);
+}
+
+function disableAutoRefresh() {
+    if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+    }
+}
+
+// Optional: Enable auto-refresh (uncomment if needed)
+// enableAutoRefresh(5);
+
+// ============================================================================
+// PRINT FUNCTIONALITY
+// ============================================================================
+function printTable() {
+    window.print();
+}
+
+// ============================================================================
+// EXPORT DATA FUNCTIONALITY (Optional)
+// ============================================================================
+function exportToCSV() {
+    const table = document.querySelector('.history-table');
+    if (!table) return;
+
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+
+    rows.forEach(row => {
+        const cols = row.querySelectorAll('td, th');
+        const csvRow = [];
+        cols.forEach((col, index) => {
+            // Skip action column
+            if (index < cols.length - 1) {
+                csvRow.push('"' + col.textContent.trim().replace(/"/g, '""') + '"');
+            }
+        });
+        csv.push(csvRow.join(','));
+    });
+
+    const csvContent = csv.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'riwayat_konfirmasi_warek.csv');
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// ============================================================================
+// ADD DYNAMIC CSS ANIMATIONS
+// ============================================================================
 const style = document.createElement('style');
 style.textContent = `
     @keyframes fadeIn {
@@ -300,5 +409,42 @@ style.textContent = `
             opacity: 0;
         }
     }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 `;
 document.head.appendChild(style);
+
+// ============================================================================
+// HANDLE PAGE VISIBILITY CHANGE
+// ============================================================================
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        console.log('Page is hidden');
+    } else {
+        console.log('Page is visible');
+        // Optional: Refresh data when user returns to tab
+    }
+});
+
+// ============================================================================
+// ERROR HANDLING FOR MISSING ELEMENTS
+// ============================================================================
+window.addEventListener('error', (e) => {
+    console.error('JavaScript Error:', e.message);
+}, true);
+
+// ============================================================================
+// CONSOLE LOG FOR DEBUGGING
+// ============================================================================
+console.log('Warek Dashboard JavaScript loaded successfully');
+console.log('Current page:', window.location.pathname);
+console.log('User session active:', document.querySelector('.welcome-title') ? 'Yes' : 'No');
