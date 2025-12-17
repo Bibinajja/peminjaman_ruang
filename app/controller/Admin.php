@@ -19,31 +19,42 @@ class Admin extends Controller
     // MANAJEMEN RUANG
     // URL: /admin/ruang
     // =========================
-    public function ruang()
+   public function ruang()
     {
-        $data['ruang'] = $this->model('Ruang_model')->getAll();
+        $ruangModel = $this->model('Ruang_model');
+
+        // Tangani semua aksi POST (tambah, edit, hapus)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (isset($_POST['action'])) {
+                $data = [
+                    'id'         => $_POST['id'] ?? null,
+                    'nama_ruang' => trim($_POST['nama_ruang'] ?? ''),
+                    'kapasitas'  => $_POST['kapasitas'] ?? 0,
+                    'lokasi'     => trim($_POST['lokasi'] ?? ''),
+                    'fasilitas'  => trim($_POST['fasilitas'] ?? '')  // akan disimpan ke kolom deskripsi
+                ];
+
+                if ($_POST['action'] === 'save') {
+                    if (!empty($data['id'])) {
+                        // Edit
+                        $ruangModel->edit($data);
+                    } else {
+                        // Tambah
+                        $ruangModel->add($data);
+                    }
+                } elseif ($_POST['action'] === 'delete' && !empty($data['id'])) {
+                    // Hapus
+                    $ruangModel->delete($data['id']);
+                }
+            }
+
+            header("Location: " . BASEURL . "/admin/ruang");
+            exit;
+        }
+
+        // Tampilkan daftar ruang
+        $data['ruang'] = $ruangModel->getAll();
         $this->view('admin/manajemen_ruang', $data);
-    }
-
-    public function tambah_ruang()
-    {
-        $this->model('Ruang_model')->add($_POST);
-        header("Location: " . BASEURL . "/admin/ruang");
-        exit;
-    }
-
-    public function edit_ruang()
-    {
-        $this->model('Ruang_model')->edit($_POST);
-        header("Location: " . BASEURL . "/admin/ruang");
-        exit;
-    }
-
-    public function hapus_ruang($id)
-    {
-        $this->model('Ruang_model')->delete($id);
-        header("Location: " . BASEURL . "/admin/ruang");
-        exit;
     }
 
     // =========================
