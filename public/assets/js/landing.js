@@ -1,138 +1,175 @@
-// Navbar Scroll Effect
+// ===== Typing Animation =====
+const typingText = document.getElementById('typingText');
+const text = 'MyRoom';
+let index = 0;
+
+function typeWriter() {
+    if (index < text.length) {
+        typingText.textContent += text.charAt(index);
+        index++;
+        setTimeout(typeWriter, 200);
+    }
+}
+
+// Start typing animation when page loads
+window.addEventListener('load', () => {
+    setTimeout(typeWriter, 500);
+});
+
+// ===== Sticky Navbar =====
+const navbar = document.getElementById('navbar');
+
 window.addEventListener('scroll', () => {
-    const navbar = document.getElementById('navbar');
     if (window.scrollY > 50) {
-        navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.15)';
+        navbar.classList.add('scrolled');
     } else {
-        navbar.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+        navbar.classList.remove('scrolled');
     }
 });
 
-// Mobile Menu Toggle
-const hamburger = document.getElementById('hamburger');
+// ===== Mobile Menu Toggle =====
+const navToggle = document.getElementById('navToggle');
 const navMenu = document.getElementById('navMenu');
 
-hamburger.addEventListener('click', () => {
+navToggle.addEventListener('click', () => {
     navMenu.classList.toggle('active');
-    hamburger.classList.toggle('active');
 });
 
-// Close mobile menu when clicking on a link
+// Close menu when clicking on a link
 document.querySelectorAll('.nav-link').forEach(link => {
     link.addEventListener('click', () => {
         navMenu.classList.remove('active');
-        hamburger.classList.remove('active');
     });
 });
 
-// Smooth Scrolling
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const offsetTop = target.offsetTop - 80;
-            window.scrollTo({
-                top: offsetTop,
+// ===== FAQ Accordion =====
+const faqItems = document.querySelectorAll('.faq-item');
+
+faqItems.forEach(item => {
+    const question = item.querySelector('.faq-question');
+    const answer = item.querySelector('.faq-answer');
+    
+    question.addEventListener('click', () => {
+        const isActive = item.classList.contains('active');
+        
+        // Close all items
+        faqItems.forEach(otherItem => {
+            otherItem.classList.remove('active');
+            otherItem.querySelector('.faq-answer').style.maxHeight = null;
+        });
+        
+        // Open clicked item if it wasn't active
+        if (!isActive) {
+            item.classList.add('active');
+            answer.style.maxHeight = answer.scrollHeight + 'px';
+        }
+    });
+});
+
+// ===== Team Slider =====
+const teamContainer = document.getElementById('teamContainer');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+prevBtn.addEventListener('click', () => {
+    teamContainer.scrollBy({
+        left: -300,
+        behavior: 'smooth'
+    });
+});
+
+nextBtn.addEventListener('click', () => {
+    teamContainer.scrollBy({
+        left: 300,
+        behavior: 'smooth'
+    });
+});
+
+// Auto scroll team slider
+let autoScrollInterval;
+
+function startAutoScroll() {
+    autoScrollInterval = setInterval(() => {
+        if (teamContainer.scrollLeft >= teamContainer.scrollWidth - teamContainer.clientWidth) {
+            teamContainer.scrollTo({
+                left: 0,
+                behavior: 'smooth'
+            });
+        } else {
+            teamContainer.scrollBy({
+                left: 270,
                 behavior: 'smooth'
             });
         }
-    });
-});
-
-// Typing Animation
-const typingText = document.getElementById('typingText');
-const textArray = [
-    'MyRoom - Sistem Peminjaman Ruang',
-    'Mudah, Cepat, dan Efisien',
-    'Paperless & Real-time',
-    'Solusi Digital untuk Kampus'
-];
-let textIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
-let typingSpeed = 100;
-
-function typeText() {
-    const currentText = textArray[textIndex];
-    
-    if (isDeleting) {
-        typingText.textContent = currentText.substring(0, charIndex - 1);
-        charIndex--;
-        typingSpeed = 50;
-    } else {
-        typingText.textContent = currentText.substring(0, charIndex + 1);
-        charIndex++;
-        typingSpeed = 100;
-    }
-
-    if (!isDeleting && charIndex === currentText.length) {
-        isDeleting = true;
-        typingSpeed = 2000; // Pause at end
-    } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        textIndex = (textIndex + 1) % textArray.length;
-        typingSpeed = 500; // Pause before starting new text
-    }
-
-    setTimeout(typeText, typingSpeed);
+    }, 3000);
 }
 
-// Start typing animation after page load
-window.addEventListener('load', () => {
-    setTimeout(typeText, 1000);
-});
+function stopAutoScroll() {
+    clearInterval(autoScrollInterval);
+}
 
-// FAQ Accordion
-const faqQuestions = document.querySelectorAll('.faq-question');
+// Start auto scroll
+startAutoScroll();
 
-faqQuestions.forEach(question => {
-    question.addEventListener('click', () => {
-        const faqItem = question.parentElement;
-        const faqAnswer = faqItem.querySelector('.faq-answer');
-        
-        // Close other FAQs
-        document.querySelectorAll('.faq-item').forEach(item => {
-            if (item !== faqItem) {
-                item.classList.remove('active');
-                item.querySelector('.faq-answer').style.maxHeight = null;
-            }
-        });
-        
-        // Toggle current FAQ
-        faqItem.classList.toggle('active');
-        
-        if (faqItem.classList.contains('active')) {
-            faqAnswer.style.maxHeight = faqAnswer.scrollHeight + 'px';
-        } else {
-            faqAnswer.style.maxHeight = null;
-        }
-    });
-});
+// Pause on hover
+teamContainer.addEventListener('mouseenter', stopAutoScroll);
+teamContainer.addEventListener('mouseleave', startAutoScroll);
 
-// WhatsApp Form Handler
-const whatsappForm = document.getElementById('whatsappForm');
+// ===== Contact Form WhatsApp Integration =====
+const contactForm = document.getElementById('contactForm');
 
-whatsappForm.addEventListener('submit', (e) => {
+contactForm.addEventListener('submit', (e) => {
     e.preventDefault();
     
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const pesan = document.getElementById('pesan').value;
+    const name = document.getElementById('contactName').value;
+    const email = document.getElementById('contactEmail').value;
+    const message = document.getElementById('contactMessage').value;
     
-    // Format the WhatsApp message
-    const message = `Nama: ${name}%0AEmail: ${email}%0APesan: ${pesan}`;
-    const whatsappNumber = '6283129313931'; // Number without '+'
-    const whatsappURL = `https://wa.me/${whatsappNumber}?text=${message}`;
+    // Format WhatsApp message
+    const whatsappNumber = '6283129313931'; // Nomor dari prompt
+    const whatsappMessage = `Nama: ${name}%0AEmail: ${email}%0APesan: ${message}`;
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
     
-    // Open WhatsApp in new tab
-    window.open(whatsappURL, '_blank');
+    // Open WhatsApp
+    window.open(whatsappUrl, '_blank');
     
     // Reset form
-    whatsappForm.reset();
+    contactForm.reset();
 });
 
-// Intersection Observer for Fade-in Animations
+// ===== Login Modal Functions =====
+function checkLoginStatus() {
+    const modal = document.getElementById('loginModal');
+    
+    // Check if user is logged in (you can modify this logic)
+    const isLoggedIn = false; // This should check actual session/login status
+    
+    if (!isLoggedIn) {
+        modal.classList.add('active');
+    } else {
+        // Redirect to peminjaman page
+        window.location.href = 'app/view/peminjam/cek_ketersediaan.php';
+    }
+}
+
+function closeModal() {
+    const modal = document.getElementById('loginModal');
+    modal.classList.remove('active');
+}
+
+function redirectToLogin() {
+    window.location.href = 'login.php';
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('loginModal');
+    if (e.target === modal) {
+        closeModal();
+    }
+});
+
+// ===== Scroll Animations =====
 const observerOptions = {
     threshold: 0.1,
     rootMargin: '0px 0px -100px 0px'
@@ -147,39 +184,47 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe all sections and cards
-document.addEventListener('DOMContentLoaded', () => {
-    const animatedElements = document.querySelectorAll(
-        '.about-card, .peminjaman-card, .step-card, .faq-item, .team-card, .contact-details, .contact-form'
-    );
-    
-    animatedElements.forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-        observer.observe(el);
+// Observe all fade-in elements
+document.querySelectorAll('.fade-in').forEach(el => {
+    observer.observe(el);
+});
+
+// ===== Smooth Scroll for Navigation Links =====
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            const offsetTop = target.offsetTop - 70; // Account for navbar height
+            window.scrollTo({
+                top: offsetTop,
+                behavior: 'smooth'
+            });
+        }
     });
 });
 
-// Add active class to current nav item
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-link');
-
+// ===== Add Entrance Animations on Scroll =====
 window.addEventListener('scroll', () => {
-    let current = '';
+    const fadeElements = document.querySelectorAll('.fade-in');
     
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        if (pageYOffset >= sectionTop - 100) {
-            current = section.getAttribute('id');
+    fadeElements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementBottom = element.getBoundingClientRect().bottom;
+        
+        if (elementTop < window.innerHeight && elementBottom > 0) {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
         }
     });
+});
 
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
-        }
+// ===== Initialize Fade Animations =====
+document.addEventListener('DOMContentLoaded', () => {
+    const fadeElements = document.querySelectorAll('.fade-in');
+    fadeElements.forEach(element => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(30px)';
+        element.style.transition = 'all 0.8s ease';
     });
 });
