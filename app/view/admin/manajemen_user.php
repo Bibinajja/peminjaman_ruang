@@ -79,7 +79,8 @@
             border-color: var(--primary);
             box-shadow: none;
             background: #020617;
-            color: #621111ff;
+            color: #fff;
+            /* Diubah agar teks terlihat saat ngetik */
         }
 
         table {
@@ -124,53 +125,49 @@
 
 <body>
 
-    <!-- SIDEBAR -->
     <div class="sidebar">
         <h4>MyRoom</h4>
         <a href="/admin/dashboard">Dashboard</a>
-        <a href="/admin/user" class="active">Manajemen User</a>
+        <a href="/user" class="active">Manajemen User</a>
         <a href="/admin/logout">Logout</a>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="main">
         <h2 class="mb-4">Manajemen User</h2>
 
-        <!-- FORM -->
         <div class="card mb-4">
             <div class="card-header">Tambah / Edit User</div>
             <div class="card-body">
-                <form action="/admin/manajemen_user" method="post">
+                <form action="<?= BASEURL ?>/user/simpan" method="post">
                     <input type="hidden" name="id" id="user_id">
                     <div class="row">
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Nama</label>
-                            <input type="text" name="nama" id="username" class="form-control" required>
+                            <input type="text" name="nama" id="input_nama" class="form-control" required>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Email</label>
-                            <input type="email" name="email" id="email" class="form-control" required>
+                            <input type="email" name="email" id="input_email" class="form-control" required>
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Password</label>
-                            <input type="password" name="password" id="password" class="form-control">
+                            <input type="password" name="password" id="input_password" class="form-control" placeholder="Isi untuk ubah password">
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Role</label>
-                            <select name="role" id="role" class="form-select">
+                            <select name="role" id="input_role" class="form-select">
                                 <option value="admin">Admin</option>
                                 <option value="warek">Warek</option>
                                 <option value="peminjam">Peminjam</option>
                             </select>
                         </div>
                     </div>
-                    <button type="submit" name="action" value="save" class="btn btn-primary">Simpan</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
                     <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
                 </form>
             </div>
         </div>
 
-        <!-- TABLE -->
         <div class="card">
             <div class="card-header">Daftar User</div>
             <div class="card-body">
@@ -190,11 +187,9 @@
                                 <td><?= $u['email']; ?></td>
                                 <td><?= ucfirst($u['role']); ?></td>
                                 <td>
-                                    <button class="btn btn-warning btn-sm" onclick="editUser(<?= $u['user_id']; ?>,'<?= $u['nama']; ?>','<?= $u['email']; ?>','<?= $u['role']; ?>')">Edit</button>
-                                    <form action="/admin/manajemen_user" method="post" style="display:inline">
-                                        <input type="hidden" name="id" value="<?= $u['user_id']; ?>">
-                                        <button class="btn btn-danger btn-sm" name="action" value="delete" onclick="return confirm('Hapus user?')">Hapus</button>
-                                    </form>
+                                    <button class="btn btn-warning btn-sm" onclick="editUser('<?= $u['user_id']; ?>','<?= $u['nama']; ?>','<?= $u['email']; ?>','<?= $u['role']; ?>')">Edit</button>
+
+                                    <a href="<?= BASEURL; ?>/user/hapus/<?= $u['user_id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Hapus user ini?')">Hapus</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -205,20 +200,40 @@
     </div>
 
     <script>
+        // Fungsi untuk mengisi form saat tombol edit diklik
         function editUser(id, nama, email, role) {
             document.getElementById('user_id').value = id;
-            document.getElementById('username').value = nama;
-            document.getElementById('email').value = email;
-            document.getElementById('role').value = role;
-            document.getElementById('password').value = '';
+            document.getElementById('input_nama').value = nama;
+            document.getElementById('input_email').value = email;
+            document.getElementById('input_role').value = role;
+            document.getElementById('input_password').value = ''; // Reset password field
         }
 
+        // Fungsi Reset Form
         function resetForm() {
             document.getElementById('user_id').value = '';
-            document.getElementById('username').value = '';
-            document.getElementById('email').value = '';
-            document.getElementById('password').value = '';
-            document.getElementById('role').value = 'admin';
+            document.getElementById('input_nama').value = '';
+            document.getElementById('input_email').value = '';
+            document.getElementById('input_password').value = '';
+            document.getElementById('input_role').value = 'admin';
+        }
+
+        // Script Alert Sederhana (Mendeteksi parameter URL)
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status');
+
+            if (status === 'added') {
+                alert("Data Berhasil Ditambahkan!");
+                // Bersihkan URL agar alert tidak muncul terus saat refresh
+                window.history.replaceState(null, null, window.location.pathname);
+            } else if (status === 'edited') {
+                alert("Data Berhasil Diedit!");
+                window.history.replaceState(null, null, window.location.pathname);
+            } else if (status === 'deleted') {
+                alert("Data Berhasil Dihapus!");
+                window.history.replaceState(null, null, window.location.pathname);
+            }
         }
     </script>
 </body>

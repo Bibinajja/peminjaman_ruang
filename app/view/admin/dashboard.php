@@ -37,8 +37,9 @@
                         <a href="<?= BASEURL ?>/home/profil" class="dropdown-item">
                             <i class="fas fa-user"></i> Profil
                         </a>
+
                         <div class="dropdown-divider"></div>
-                        <a href="<?= BASEURL ?>/logout" class="dropdown-item logout">
+                        <a href="<?= BASEURL ?>/home/index" class="dropdown-item logout">
                             <i class="fas fa-sign-out-alt"></i> Keluar
                         </a>
                     </div>

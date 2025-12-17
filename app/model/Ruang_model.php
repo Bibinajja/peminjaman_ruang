@@ -83,16 +83,35 @@ class Ruang_model
     }
 
 
-    public function add($data)
+   public function add($data)
     {
-        $query = "INSERT INTO ruang (nama_ruang, kapasitas, lokasi, deskripsi)
-                  VALUES (:nama_ruang, :kapasitas, :lokasi, :deskripsi)";
+        $query = "INSERT INTO ruang (nama_ruang, kapasitas, lokasi, deskripsi, status)
+                  VALUES (:nama_ruang, :kapasitas, :lokasi, :deskripsi, 'aktif')";
 
         $this->db->query($query);
         $this->db->bind(':nama_ruang', $data['nama_ruang']);
         $this->db->bind(':kapasitas', $data['kapasitas']);
         $this->db->bind(':lokasi', $data['lokasi']);
-        $this->db->bind(':deskripsi', $data['deskripsi']);
+        $this->db->bind(':deskripsi', $data['fasilitas']); // fasilitas dari form → simpan ke deskripsi
+
+        return $this->db->execute();
+    }
+
+    public function edit($data)
+    {
+        $query = "UPDATE ruang SET 
+                  nama_ruang = :nama_ruang,
+                  kapasitas = :kapasitas,
+                  lokasi = :lokasi,
+                  deskripsi = :deskripsi
+                  WHERE ruang_id = :id";
+
+        $this->db->query($query);
+        $this->db->bind(':id', $data['id']);
+        $this->db->bind(':nama_ruang', $data['nama_ruang']);
+        $this->db->bind(':kapasitas', $data['kapasitas']);
+        $this->db->bind(':lokasi', $data['lokasi']);
+        $this->db->bind(':deskripsi', $data['fasilitas']);
 
         return $this->db->execute();
     }

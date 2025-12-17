@@ -1,96 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manajemen Ruang</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-
 <body>
     <div class="container mt-5">
-        <h1>Manajemen Ruang</h1>
-        <p>Kelola ruang dengan operasi CRUD (Create, Read, Update, Delete).</p>
+        <h1 class="mb-4">Manajemen Ruang</h1>
 
-        <!-- Add/Edit Form -->
-        <div class="card mb-4">
-            <div class="card-header">
-                Tambah/Edit Ruang
+        <!-- Form Tambah / Edit Ruang -->
+        <div class="card mb-5">
+            <div class="card-header bg-primary text-white">
+                <strong><?= isset($_GET['edit']) ? 'Edit' : 'Tambah' ?> Ruang</strong>
             </div>
             <div class="card-body">
-                <form action="/admin/manajemen_ruang" method="post">
+                <form action="<?= BASEURL ?>/admin/ruang" method="post">
                     <input type="hidden" name="id" id="ruangId" value="">
-                    <div class="mb-3">
-                        <label for="nama_ruang" class="form-label">Nama Ruang:</label>
-                        <input type="text" class="form-control" id="nama_ruang" name="nama_ruang" required>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nama_ruang" class="form-label">Nama Ruang <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nama_ruang" name="nama_ruang" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="kapasitas" class="form-label">Kapasitas <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" id="kapasitas" name="kapasitas" min="1" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="kapasitas" class="form-label">Kapasitas:</label>
-                        <input type="number" class="form-control" id="kapasitas" name="kapasitas" required>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="lokasi" class="form-label">Lokasi <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="lokasi" name="lokasi" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="fasilitas" class="form-label">Fasilitas / Deskripsi</label>
+                            <textarea class="form-control" id="fasilitas" name="fasilitas" rows="3"></textarea>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="lokasi" class="form-label">Lokasi:</label>
-                        <input type="text" class="form-control" id="lokasi" name="lokasi" required>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" name="action" value="save" class="btn btn-success">Simpan</button>
+                        <button type="button" class="btn btn-secondary" onclick="resetForm()">Batal / Reset</button>
                     </div>
-                    <div class="mb-3">
-                        <label for="fasilitas" class="form-label">Fasilitas:</label>
-                        <textarea class="form-control" id="fasilitas" name="fasilitas"></textarea>
-                    </div>
-                    <button type="submit" name="action" value="save" class="btn btn-primary">Simpan</button>
-                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
                 </form>
             </div>
         </div>
 
-        <!-- List of Rooms -->
-        <h2>Daftar Ruang</h2>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nama Ruang</th>
-                    <th>Kapasitas</th>
-                    <th>Lokasi</th>
-                    <th>Fasilitas</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (isset($data['ruang']) && !empty($data['ruang'])): ?>
-                    <?php foreach ($data['ruang'] as $ruang): ?>
-                        <tr>
-                            <td><?php echo $ruang['id']; ?></td>
-                            <td><?php echo $ruang['nama_ruang']; ?></td>
-                            <td><?php echo $ruang['kapasitas']; ?></td>
-                            <td><?php echo $ruang['lokasi']; ?></td>
-                            <td><?php echo $ruang['fasilitas']; ?></td>
-                            <td>
-                                <button class="btn btn-warning btn-sm" onclick="editRuang(<?php echo $ruang['id']; ?>, '<?php echo $ruang['nama_ruang']; ?>', <?php echo $ruang['kapasitas']; ?>, '<?php echo $ruang['lokasi']; ?>', '<?php echo $ruang['fasilitas']; ?>')">Edit</button>
-                                <form action="/admin/manajemen_ruang" method="post" style="display:inline;">
-                                    <input type="hidden" name="id" value="<?php echo $ruang['id']; ?>">
-                                    <button type="submit" name="action" value="delete" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus?')">Hapus</button>
-                                </form>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
+        <!-- Tabel Daftar Ruang -->
+        <h2 class="mb-3">Daftar Ruang</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle">
+                <thead class="table-dark">
                     <tr>
-                        <td colspan="6">Tidak ada ruang.</td>
+                        <th>No</th>
+                        <th>ID</th>
+                        <th>Nama Ruang</th>
+                        <th>Kapasitas</th>
+                        <th>Lokasi</th>
+                        <th>Deskripsi / Fasilitas</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
                     </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-        <a href="/admin/dashboard" class="btn btn-secondary">Kembali ke Dashboard</a>
+                </thead>
+                <tbody>
+                    <?php if (isset($data['ruang']) && is_array($data['ruang']) && count($data['ruang']) > 0): ?>
+                        <?php $no = 1; foreach ($data['ruang'] as $ruang): ?>
+                            <tr>
+                                <td><?= $no++ ?></td>
+                                <td><?= htmlspecialchars($ruang['ruang_id']) ?></td>
+                                <td><?= htmlspecialchars($ruang['nama_ruang']) ?></td>
+                                <td><?= htmlspecialchars($ruang['kapasitas']) ?></td>
+                                <td><?= htmlspecialchars($ruang['lokasi']) ?></td>
+                                <td><?= htmlspecialchars($ruang['deskripsi'] ?? '-') ?></td>
+                                <td>
+                                    <span class="badge bg-<?= $ruang['status'] === 'aktif' ? 'success' : 'secondary' ?>">
+                                        <?= ucfirst(htmlspecialchars($ruang['status'])) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm" onclick="editRuang(
+                                        <?= $ruang['ruang_id'] ?>,
+                                        '<?= addslashes(htmlspecialchars($ruang['nama_ruang'])) ?>',
+                                        <?= $ruang['kapasitas'] ?>,
+                                        '<?= addslashes(htmlspecialchars($ruang['lokasi'])) ?>',
+                                        '<?= addslashes(htmlspecialchars($ruang['deskripsi'] ?? '')) ?>'
+                                    )">Edit</button>
+
+                                    <form action="<?= BASEURL ?>/admin/ruang" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="<?= $ruang['ruang_id'] ?>">
+                                        <input type="hidden" name="action" value="delete">
+                                        <button type="submit" class="btn btn-danger btn-sm" 
+                                                onclick="return confirm('Yakin ingin menghapus ruang <?= addslashes(htmlspecialchars($ruang['nama_ruang'])) ?>?')">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="8" class="text-center py-4">Belum ada data ruang.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <a href="<?= BASEURL ?>/admin/dashboard" class="btn btn-outline-primary mt-3">← Kembali ke Dashboard</a>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function editRuang(id, nama_ruang, kapasitas, lokasi, fasilitas) {
+        function editRuang(id, nama_ruang, kapasitas, lokasi, deskripsi) {
             document.getElementById('ruangId').value = id;
             document.getElementById('nama_ruang').value = nama_ruang;
             document.getElementById('kapasitas').value = kapasitas;
             document.getElementById('lokasi').value = lokasi;
-            document.getElementById('fasilitas').value = fasilitas;
+            document.getElementById('fasilitas').value = deskripsi || '';
+
+            // Optional: scroll ke atas form
+            document.querySelector('.card-header').scrollIntoView({ behavior: 'smooth' });
         }
 
         function resetForm() {
@@ -102,5 +134,4 @@
         }
     </script>
 </body>
-
 </html>

@@ -14,43 +14,47 @@ class User extends Controller
         $this->view('admin/manajemen_user', $data);
     }
 
-    public function tambah()
+    public function simpan()
     {
         if ($_SESSION['user']['role'] !== 'admin') {
             header("Location: " . BASEURL . "/home");
             exit;
         }
 
-        $data = [
-            'nama'      => $_POST['nama'],
-            'username'  => $_POST['username'],
-            'password'  => $_POST['password'],
-            'role'      => $_POST['role']    // admin bisa set role: admin/peminjam/warek
-        ];
+        // Cek apakah ini Edit (punya ID) atau Tambah (tidak punya ID)
+        if (!empty($_POST['id'])) {
+            // --- LOGIC EDIT ---
+            $data = [
+                'id'        => $_POST['id'],
+                'nama'      => $_POST['nama'],
+                'email'     => $_POST['email'],
+                'role'      => $_POST['role'],
+            ];
 
-        $this->model("User_model")->add($data);
-        header("Location:" . BASEURL . "/user");
-    }
+            // Hanya update password jika diisi
+            if (!empty($_POST['password'])) {
+                $data['password'] = $_POST['password'];
+            }
 
-    public function edit()
-    {
-        if ($_SESSION['user']['role'] !== 'admin') {
-            header("Location: " . BASEURL . "/home");
-            exit;
+            if ($this->model("User_model")->edit($data) > 0) {
+                header("Location:" . BASEURL . "/user?status=edited");
+                exit;
+            }
+        } else {
+            // --- LOGIC TAMBAH ---
+            $data = [
+                'nama'      => $_POST['nama'],
+                'email'     => $_POST['email'],
+                'password'  => $_POST['password'],
+                'role'      => $_POST['role']
+            ];
+
+            if ($this->model("User_model")->add($data) > 0) {
+                header("Location:" . BASEURL . "/user?status=added");
+                exit;
+            }
         }
 
-        $data = [
-            'id'        => $_POST['id'],
-            'nama'      => $_POST['nama'],
-            'username'  => $_POST['username'],
-            'role'      => $_POST['role'],
-        ];
-
-        if (!empty($_POST['password'])) {
-            $data['password'] = $_POST['password']; // update password jika diisi
-        }
-
-        $this->model("User_model")->edit($data);
         header("Location:" . BASEURL . "/user");
     }
 
@@ -61,26 +65,36 @@ class User extends Controller
             exit;
         }
 
-        $this->model("User_model")->delete($id);
-        header("Location:" . BASEURL . "/user");
+        if ($this->model("User_model")->delete($id) > 0) {
+            header("Location:" . BASEURL . "/user?status=deleted");
+        } else {
+            header("Location:" . BASEURL . "/user");
+        }
     }
 
-    // Optional: Profil User (untuk peminjam)
+    // ==========================================
+    // BAGIAN INI SUDAH DIUBAH SESUAI PERMINTAAN
+    // ==========================================
     public function profil()
     {
-        $id = $_SESSION['user']['id'];
+        // Ambil ID dari session
+        $id = $_SESSION['user']['user_id'];
+
+        // Ambil data user terbaru
         $data['user'] = $this->model("User_model")->getById($id);
-        $this->view('peminjam/profil', $data);
+
+        // PERUBAHAN DISINI: Mengarah ke folder home
+        $this->view('home/profil', $data);
     }
 
     public function update_profil()
     {
-        $id = $_SESSION['user']['id'];
+        $id = $_SESSION['user']['user_id'];
 
         $data = [
             'id'       => $id,
             'nama'     => $_POST['nama'],
-            'username' => $_POST['username']
+            'email'    => $_POST['email']
         ];
 
         if (!empty($_POST['password'])) {
@@ -89,7 +103,7 @@ class User extends Controller
 
         $this->model("User_model")->edit($data);
 
-        // refresh session
+        // Refresh session
         $_SESSION['user'] = $this->model("User_model")->getById($id);
 
         header("Location:" . BASEURL . "/user/profil");

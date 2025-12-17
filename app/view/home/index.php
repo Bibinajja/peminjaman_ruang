@@ -195,49 +195,49 @@
                 <div class="team-container" id="teamContainer">
                     <div class="team-card">
                         <div class="team-image">
-                            <img src="../../public/assets/img/bintoro.jpg" alt="Muhammad Bintoro" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
+                            <img src="<?= BASEURL ?>assets/img/bintoro.jpg" alt="Muhammad Bintoro" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
                         </div>
                         <h3>Muhammad Bintoro</h3>
                         <p class="team-nim">NIM: 24060009</p>
                     </div>
                     <div class="team-card">
                         <div class="team-image">
-                            <img src="../../public/assets/img/nizar.jpg" alt="Nizar Fanani" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
+                            <img src="<?= BASEURL ?>assets/img/nizar.jpg" alt="Nizar Fanani" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
                         </div>
                         <h3>Nizar Fanani</h3>
                         <p class="team-nim">NIM: 24060048</p>
                     </div>
                     <div class="team-card">
                         <div class="team-image">
-                            <img src="../../public/assets/img/riyan.jpg" alt="Rianto Dian Maulana" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
+                            <img src="<?= BASEURL ?>assets/img/riyan.jpg" alt="Rianto Dian Maulana" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
                         </div>
                         <h3>Rianto Dian Maulana</h3>
                         <p class="team-nim">NIM: 24060001</p>
                     </div>
                     <div class="team-card">
                         <div class="team-image">
-                            <img src="../../public/assets/img/faqih.jpg" alt="Faqi Agustinus" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
+                            <img src="<?= BASEURL ?>assets/img/faqih.jpg" alt="Faqi Agustinus" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
                         </div>
                         <h3>Faqi Agustinus</h3>
                         <p class="team-nim">NIM: 24060032</p>
                     </div>
                     <div class="team-card">
                         <div class="team-image">
-                            <img src="../../public/assets/img/irfandi.jpg" alt="Moh Irfandi" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
+                            <img src="<?= BASEURL ?>assets/img/irfandi.jpg" alt="Moh Irfandi" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
                         </div>
                         <h3>Moh Irfandi</h3>
                         <p class="team-nim">NIM: 24060058</p>
                     </div>
                     <div class="team-card">
                         <div class="team-image">
-                            <img src="../../public/assets/img/laila.jpeg" alt="Lailatul Badriyah" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
+                            <img src="<?= BASEURL ?>assets/img/laila.jpeg" alt="Lailatul Badriyah" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
                         </div>
                         <h3>Lailatul Badriyah</h3>
                         <p class="team-nim">NIM: 24060016</p>
                     </div>
                     <div class="team-card">
                         <div class="team-image">
-                            <img src="public/assets/img/tsaqiev.jpg" alt="Tsaqiev Achmad Basayv" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
+                            <img src="<?= BASEURL ?>assets/img/tsaqiev.jpg" alt="Tsaqiev Achmad Basayv" onerror="this.parentElement.innerHTML='<i class=\'fas fa-user\'></i>'">
                         </div>
                         <h3>Tsaqiev Achmad Basayv</h3>
                         <p class="team-nim">NIM: 24060004</p>
@@ -326,22 +326,22 @@
                 <div class="footer-col">
                     <h4>Social Media</h4>
                     <div class="social-links">
+
                         <a href="https://youtube.com/@itsmandala2788" target="_blank" rel="noopener noreferrer">
-                            <a href="https://youtube.com/@itsmandala2788" target="_blank" rel="noopener noreferrer">
-                                <i class="fab fa-youtube"></i>
-                            </a>
+                            <i class="fab fa-youtube"></i>
+                        </a>
 
-                            <a href="https://instagram.com/itsmandala.official" target="_blank" rel="noopener noreferrer">
-                                <i class="fab fa-instagram"></i>
-                            </a>
+                        <a href="https://instagram.com/itsmandala.official" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-instagram"></i>
+                        </a>
 
-                            <a href="https://facebook.com/stiemandala.akunresmi" target="_blank" rel="noopener noreferrer">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
+                        <a href="https://facebook.com/stiemandala.akunresmi" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
 
-                            <a href="https://tiktok.com/@itsm.top" target="_blank" rel="noopener noreferrer">
-                                <i class="fab fa-tiktok"></i>
-                            </a>
+                        <a href="https://tiktok.com/@itsm.top" target="_blank" rel="noopener noreferrer">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
                     </div>
                 </div>
             </div>
