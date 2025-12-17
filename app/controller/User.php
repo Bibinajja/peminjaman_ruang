@@ -14,7 +14,6 @@ class User extends Controller
         $this->view('admin/manajemen_user', $data);
     }
 
-    // FUNGSI BARU UNTUK MENANGANI FORM (TAMBAH & EDIT)
     public function simpan()
     {
         if ($_SESSION['user']['role'] !== 'admin') {
@@ -28,7 +27,7 @@ class User extends Controller
             $data = [
                 'id'        => $_POST['id'],
                 'nama'      => $_POST['nama'],
-                'email'     => $_POST['email'], // PERBAIKAN: username diganti email
+                'email'     => $_POST['email'],
                 'role'      => $_POST['role'],
             ];
 
@@ -38,7 +37,6 @@ class User extends Controller
             }
 
             if ($this->model("User_model")->edit($data) > 0) {
-                // Redirect dengan pesan sukses (status=edited)
                 header("Location:" . BASEURL . "/user?status=edited");
                 exit;
             }
@@ -46,19 +44,17 @@ class User extends Controller
             // --- LOGIC TAMBAH ---
             $data = [
                 'nama'      => $_POST['nama'],
-                'email'     => $_POST['email'], // PERBAIKAN: username diganti email
+                'email'     => $_POST['email'],
                 'password'  => $_POST['password'],
                 'role'      => $_POST['role']
             ];
 
             if ($this->model("User_model")->add($data) > 0) {
-                // Redirect dengan pesan sukses (status=added)
                 header("Location:" . BASEURL . "/user?status=added");
                 exit;
             }
         }
 
-        // Jika gagal atau tidak ada perubahan
         header("Location:" . BASEURL . "/user");
     }
 
@@ -76,22 +72,29 @@ class User extends Controller
         }
     }
 
-    // Optional: Profil User (untuk peminjam)
+    // ==========================================
+    // BAGIAN INI SUDAH DIUBAH SESUAI PERMINTAAN
+    // ==========================================
     public function profil()
     {
-        $id = $_SESSION['user']['id'];
+        // Ambil ID dari session
+        $id = $_SESSION['user']['user_id'];
+
+        // Ambil data user terbaru
         $data['user'] = $this->model("User_model")->getById($id);
-        $this->view('peminjam/profil', $data);
+
+        // PERUBAHAN DISINI: Mengarah ke folder home
+        $this->view('home/profil', $data);
     }
 
     public function update_profil()
     {
-        $id = $_SESSION['user']['id'];
+        $id = $_SESSION['user']['user_id'];
 
         $data = [
             'id'       => $id,
             'nama'     => $_POST['nama'],
-            'email'    => $_POST['email'] // Sesuaikan juga disini jika perlu
+            'email'    => $_POST['email']
         ];
 
         if (!empty($_POST['password'])) {
@@ -100,7 +103,7 @@ class User extends Controller
 
         $this->model("User_model")->edit($data);
 
-        // refresh session
+        // Refresh session
         $_SESSION['user'] = $this->model("User_model")->getById($id);
 
         header("Location:" . BASEURL . "/user/profil");
