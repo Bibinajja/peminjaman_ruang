@@ -18,9 +18,9 @@ class Home extends Controller
     }
     public function register()
     {
-        $data['judul'] = 'Login Page';
+        $data['judul'] = 'register Page';
 
-        $this->view('home/login', $data);
+        $this->view('home/register', $data);
         $this->view('templates/footer');
     }
 
