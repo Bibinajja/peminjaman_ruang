@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Konfirmasi Pengembalian</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
 </head>
 
 <body>
@@ -28,7 +29,7 @@
                     <?php foreach ($data['pengembalian'] as $item): ?>
                         <tr>
                             <td><?php echo $item['id']; ?></td>
-                            <td><?php echo $item['peminjam']; ?></td>
+                            <td><?php echo $item['pengembailan']; ?></td>
                             <td><?php echo $item['ruang']; ?></td>
                             <td><?php echo $item['tanggal']; ?></td>
                             <td><?php echo $item['alasan']; ?></td>
@@ -41,7 +42,7 @@
                             </td>
                         </tr>
                         <!-- Modal for Reject Reason -->
-                        <div class="modal fade" id="rejectModal<?php echo $item['id']; ?>" tabindex="-1" aria-labelledby="rejectModalLabel<?php echo $item['id']; ?>" aria-hidden="true">
+                        <div class="modal fade" id="rejectModal<?php echo $item['pengembalianid']; ?>" tabindex="-1" aria-labelledby="rejectModalLabel<?php echo $item['pengembalian_id']; ?>" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -75,7 +76,7 @@
                 <?php endif; ?>
             </tbody>
         </table>
-        <a href="/admin/dashboard" class="btn btn-secondary">Kembali ke Dashboard</a>
+        <a href="<?= BASEURL ?>/admin/dashboard" class="btn btn-secondary">Kembali ke Dashboard</a>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

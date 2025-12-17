@@ -17,6 +17,46 @@ class Home extends Controller
         $this->view('home/login', $data);
         $this->view('templates/footer');
     }
+    public function profil()
+    {
+        // Cek login
+        if (!isset($_SESSION['user'])) {
+            header('Location: ' . BASEURL . '/home/login');
+            exit;
+        }
+
+        $user_id = $_SESSION['user']['user_id'];
+
+        // Ambil data user
+        $data['user'] = $this->model('User_model')->getUserById($user_id);
+
+        // Proses update profil
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
+            $nama     = trim($_POST['nama']);
+            $email    = trim($_POST['email']);
+            $password = $_POST['password'] ?? '';
+
+            $result = $this->model('User_model')->updateProfil($user_id, $nama, $email, $password);
+
+            if ($result['success']) {
+                // Update session
+                $_SESSION['user']['nama']  = $nama;
+                $_SESSION['user']['email'] = $email;
+
+                Flasher::setFlash('Profil berhasil diperbarui!', 'success');
+            } else {
+                Flasher::setFlash($result['message'], 'danger');
+            }
+
+            // Refresh data user setelah update
+            $data['user'] = $this->model('User_model')->getUserById($user_id);
+        }
+
+        $data['title'] = 'Profil Pengguna';
+        $this->view('templates/header', $data);
+        $this->view('home/profil', $data);  // view murni HTML
+        $this->view('templates/footer');
+    }
 
     public function login()
     {

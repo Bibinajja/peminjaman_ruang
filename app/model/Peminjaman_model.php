@@ -3,6 +3,7 @@
 class Peminjaman_model
 {
     private $table = 'peminjaman';
+    private $pk = 'peminjaman_id';
     private $db;
 
     public function __construct()
@@ -181,26 +182,24 @@ class Peminjaman_model
      * Setujui pengembalian
      */
     public function approvePengembalian($id)
-    {
-        $query = "UPDATE {$this->table} SET status = 'selesai' WHERE id = :id";
-        $this->db->query($query);
-        $this->db->bind('id', $id);
-        return $this->db->execute();
-    }
+{
+    $query = "UPDATE {$this->table} SET status = 'selesai' WHERE {$this->pk} = :id";
+    $this->db->query($query);
+    $this->db->bind('id', $id);
+    $this->db->execute();
+    return $this->db->rowCount();
+}
 
-    /**
-     * Tolak pengembalian
-     */
-    public function rejectPengembalian($id, $reason)
-    {
-        $query = "
-            UPDATE {$this->table} 
-            SET status = 'ditolak', alasan_admin = :reason 
-            WHERE id = :id
-        ";
-        $this->db->query($query);
-        $this->db->bind('id', $id);
-        $this->db->bind('reason', $reason);
-        return $this->db->execute();
-    }
+public function rejectPengembalian($id, $reason)
+{
+    $query = "UPDATE {$this->table} 
+              SET status = 'ditolak', alasan_admin = :reason 
+              WHERE {$this->pk} = :id";
+    $this->db->query($query);
+    $this->db->bind('id', $id);
+    $this->db->bind('reason', $reason);
+    $this->db->execute();
+    return $this->db->rowCount();
+}
+
 }

@@ -1,12 +1,12 @@
 <?php
-session_start();
-require_once '../../core/Database.php';
+// session_start();
+// // require_once '../../core/Database.php';
 
-// Cek apakah user sudah login
-if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit();
-}
+// // Cek apakah user sudah login
+// if (!isset($_SESSION['user_id'])) {
+//     header('Location: login.php');
+//     exit();
+// }
 
 $db = new Database();
 $user_id = $_SESSION['user_id'];
