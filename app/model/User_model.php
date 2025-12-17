@@ -11,6 +11,45 @@ class User_model
     }
 
     // =========================
+    // GET USER BY ID
+    // =========================
+
+    public function getUserById($id)
+    {
+        $this->db->query("SELECT user_id, nama, email, role FROM {$this->table} WHERE user_id = :id");
+        $this->db->bind(':id', $id);
+        return $this->db->single();
+    }
+// Update profil user
+    public function updateProfil($user_id, $nama, $email, $password = '')
+    {
+        try {
+            if (!empty($password)) {
+                $hashed = password_hash($password, PASSWORD_DEFAULT);
+                $query = "UPDATE users SET nama = :nama, email = :email, password = :password WHERE user_id = :user_id";
+                $this->db->query($query);
+                $this->db->bind(':password', $hashed);
+            } else {
+                $query = "UPDATE users SET nama = :nama, email = :email WHERE user_id = :user_id";
+                $this->db->query($query);
+            }
+
+            $this->db->bind(':nama', $nama);
+            $this->db->bind(':email', $email);
+            $this->db->bind(':user_id', $user_id);
+
+            $this->db->execute();
+
+            if ($this->db->rowCount() > 0) {
+                return ['success' => true];
+            } else {
+                return ['success' => false, 'message' => 'Tidak ada perubahan atau email sudah digunakan!'];
+            }
+        } catch (Exception $e) {
+            return ['success' => false, 'message' => 'Gagal update: ' . $e->getMessage()];
+        }
+    }
+    // =========================
     // GET ALL USERS
     // =========================
     public function getAll()

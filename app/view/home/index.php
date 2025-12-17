@@ -23,7 +23,7 @@
                 <a href="#team" class="nav-link">Team</a>
                 <a href="#contact" class="nav-link">Contact</a>
             </div>
-            <a href="app/view/home/profil.php" class="nav-profile">
+            <a href="<?= BASEURL ?>/home/profil.php" class="nav-profile">
                 <i class="fas fa-user-circle"></i>
             </a>
             <div class="nav-toggle" id="navToggle">

@@ -34,7 +34,7 @@
                     </button>
 
                     <div class="dropdown-menu" id="dropdownMenu">
-                        <a href="<?= BASEURL ?>/user/profil" class="dropdown-item">
+                        <a href="<?= BASEURL ?>/home/profil" class="dropdown-item">
                             <i class="fas fa-user"></i> Profil
                         </a>
 

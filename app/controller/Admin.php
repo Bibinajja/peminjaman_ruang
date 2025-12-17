@@ -132,16 +132,66 @@ class Admin extends Controller
     // =========================
     // KONFIRMASI PENGEMBALIAN
     // =========================
-    public function konfirmasi_pengembalian()
-    {
-        $data['pengembalian'] = $this->model('Peminjaman_model')->getPengembalian();
-        $this->view('admin/konfirmasi_pengembalian', $data);
-    }
 
-    public function setujui_pengembalian($id)
-    {
-        $this->model('Peminjaman_model')->approvePengembalian($id);
-        header("Location: " . BASEURL . "/admin/konfirmasi_pengembalian");
-        exit;
-    }
+public function konfirmasi_pengembalian()
+{
+    $data['title'] = 'Konfirmasi Pengembalian';
+    $data['pengembalian'] = $this->model('Pengembalian_model')->getPengembalian();
+
+    // $this->view('templates/header', $data);          // jika pakai header
+    $this->view('admin/konfirmasi_pengembalian', $data);
+    $this->view('templates/footer');                 // jika pakai footer
+}
+
+    public function approvePengembalian($id)
+{
+    // Update status pengembalian jadi disetujui
+    $this->db->query("UPDATE {$this->table} SET status = 'disetujui' WHERE {$this->pk} = :id");
+    $this->db->bind(':id', $id);
+    $this->db->execute();
+
+    // Update status peminjaman jadi 'selesai'
+    $this->db->query("
+        UPDATE peminjaman p 
+        JOIN {$this->table} peng ON p.peminjaman_id = peng.peminjaman_id 
+        SET p.status = 'selesai' 
+        WHERE peng.{$this->pk} = :id
+    ");
+    $this->db->bind(':id', $id);
+    return $this->db->execute();
+}
+
+public function rejectPengembalian($id, $reason)
+{
+    // Update status dan alasan admin di tabel pengembalian
+    $this->db->query("
+        UPDATE {$this->table} 
+        SET status = 'ditolak', alasan_admin = :reason 
+        WHERE {$this->pk} = :id
+    ");
+    $this->db->bind(':id', $id);
+    $this->db->bind(':reason', $reason);
+    $this->db->execute();
+
+    // Optional: kembalikan status peminjaman ke 'disetujui'
+    $this->db->query("
+        UPDATE peminjaman p 
+        JOIN {$this->table} peng ON p.peminjaman_id = peng.peminjaman_id 
+        SET p.status = 'disetujui' 
+        WHERE peng.{$this->pk} = :id
+    ");
+    $this->db->bind(':id', $id);
+    return $this->db->execute();
+
+    if ($action === 'approve') {
+    $this->model('Pengembalian_model')->approvePengembalian($pengembalian_id);
+    Flasher::setFlash('Pengembalian disetujui', 'success');
+} elseif ($action === 'reject') {
+    $this->model('Pengembalian_model')->rejectPengembalian($pengembalian_id, $reason);
+    Flasher::setFlash('Pengembalian ditolak', 'warning');
+}
+    // header("Location: " . BASEURL . "/admin/konfirmasi_pengembalian");
+    // exit;
+}
+
 }
