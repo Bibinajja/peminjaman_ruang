@@ -14,7 +14,7 @@ class Home extends Controller
     {
         $data['judul'] = 'Login Page';
 
-        $this->view('home/login', $data);
+        $this->view('home/Register', $data);
         $this->view('templates/footer');
     }
 
