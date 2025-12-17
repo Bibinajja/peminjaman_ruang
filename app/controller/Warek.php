@@ -4,27 +4,47 @@ class Warek extends Controller
 {
     public function index()
     {
-        $this->view('warek/dashboard');
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'warek') {
+            header('Location: ' . BASEURL . '/home/login');
+            exit;
+        }
+
+        $data['judul'] = 'Dashboard Warek';
+        $data['namaWarek'] = $_SESSION['user']['nama'] ?? 'Warek';
+        $data['pendingCount']  = 0;
+        $data['approvedCount'] = 0;
+        $data['totalCount']    = 0;
+        $data['historyData']   = [];
+        $this->view('warek/dashboard', $data);
     }
 
     public function konfirmasi()
     {
-        $data = $this->model("Peminjaman_model")->getTahap1();
+        $data['judul'] = 'Konfirmasi Peminjaman';
+        $data['namaWarek'] = $_SESSION['user']['nama'];
+        $data['peminjaman'] = $this->model("Peminjaman_model")->getTahap1();
+
         $this->view('warek/konfirmasi_warek', $data);
     }
 
     public function setujui($id)
     {
-        $this->model("Peminjaman_model")->approveWarek($id);
-        header("Location:" . BASEURL . "/warek/konfirmasi");
+        $this->model('Peminjaman_model')->approveWarek($id);
+
+        header('Location: ' . BASEURL . '/warek/konfirmasi');
+        exit;
     }
 
     public function tolak()
     {
-        $id = $_POST['id'];
-        $alasan = $_POST['alasan'];
+        $id     = $_POST['id'] ?? null;
+        $alasan = $_POST['alasan'] ?? '';
 
-        $this->model("Peminjaman_model")->rejectWarek($id, $alasan);
-        header("Location:" . BASEURL . "/warek/konfirmasi");
+        if ($id) {
+            $this->model('Peminjaman_model')->rejectWarek($id, $alasan);
+        }
+
+        header('Location: ' . BASEURL . '/warek/konfirmasi');
+        exit;
     }
 }

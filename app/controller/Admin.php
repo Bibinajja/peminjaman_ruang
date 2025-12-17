@@ -4,7 +4,7 @@ class Admin extends Controller
 {
     // public function __construct()
     // {
-        
+
     // }
 
     // =========================
@@ -52,6 +52,27 @@ class Admin extends Controller
     // =========================
     public function user()
     {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $action = $_POST['action'];
+
+            if ($action === 'save') {
+
+                if (!empty($_POST['id'])) {
+                    // UPDATE
+                    $this->model('User_model')->update($_POST);
+                } else {
+                    // INSERT
+                    $this->model('User_model')->insert($_POST);
+                }
+            } elseif ($action === 'delete') {
+                $this->model('User_model')->delete($_POST['id']);
+            }
+
+            header('Location: ' . BASEURL . '/admin/user');
+            exit;
+        }
+        $data['judul'] = 'Manajemen User';
         $data['users'] = $this->model('User_model')->getAll();
         $this->view('admin/manajemen_user', $data);
     }

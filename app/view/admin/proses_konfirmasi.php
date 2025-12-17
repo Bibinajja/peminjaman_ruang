@@ -16,13 +16,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama_peminjam  = trim($_POST['nama_peminjam'] ?? '');
     $tanggal_mulai  = $_POST['tanggal_mulai'] ?? '';
     $jam_mulai      = $_POST['jam_mulai'] ?? '';
-    $tanggal_selesai= $_POST['tanggal_selesai'] ?? '';
+    $tanggal_selesai = $_POST['tanggal_selesai'] ?? '';
     $jam_selesai    = $_POST['jam_selesai'] ?? '';
     $keperluan      = trim($_POST['keperluan'] ?? '');
 
     // Validasi sederhana
-    if (empty($ruang_id) || empty($nama_peminjam) || empty($tanggal_mulai) || empty($jam_mulai) || 
-        empty($tanggal_selesai) || empty($jam_selesai) || empty($keperluan)) {
+    if (
+        empty($ruang_id) || empty($nama_peminjam) || empty($tanggal_mulai) || empty($jam_mulai) ||
+        empty($tanggal_selesai) || empty($jam_selesai) || empty($keperluan)
+    ) {
         $_SESSION['error'] = "Semua field harus diisi!";
         header("Location: form_peminjaman.php?ruang_id=$ruang_id&tanggal=$tanggal_mulai");
         exit();
@@ -55,7 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Redirect ke riwayat
         header("Location: riwayat_peminjaman.php");
         exit();
-
     } catch (Exception $e) {
         $_SESSION['error'] = "Gagal menyimpan peminjaman: " . $e->getMessage();
         header("Location: form_peminjaman.php?ruang_id=$ruang_id&tanggal=$tanggal_mulai");
@@ -65,4 +66,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: form_peminjaman.php");
     exit();
 }
-?>

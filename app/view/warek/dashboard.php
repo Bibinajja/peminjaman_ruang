@@ -1,15 +1,15 @@
 <?php
-session_start();
+// session_start();
 
-// Cek apakah user sudah login dan role-nya warek
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'warek') {
-    header('Location: ../../../index.php');
-    exit;
-}
+// // Cek apakah user sudah login dan role-nya warek
+// if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'warek') {
+//     header('Location: ../../../index.php');
+//     exit;
+// }
 
 // Koneksi database
-require_once '../../core/Database.php';
-$db = new Database();
+// require_once '../../core/Database.php';
+// $db = new Database();
 
 /*
 |--------------------------------------------------------------------------
@@ -21,45 +21,45 @@ $db = new Database();
 */
 
 // Menunggu konfirmasi Warek
-$db->query("
-    SELECT COUNT(*) AS total
-    FROM peminjaman
-    WHERE status = 'konfirmasi_admin'
-");
-$pendingCount = $db->single()['total'] ?? 0;
+// $db->query("
+//     SELECT COUNT(*) AS total
+//     FROM peminjaman
+//     WHERE status = 'konfirmasi_admin'
+// ");
+// $pendingCount = $db->single()['total'] ?? 0;
 
-// Sudah diterima (final)
-$db->query("
-    SELECT COUNT(*) AS total
-    FROM peminjaman
-    WHERE status = 'diterima'
-");
-$approvedCount = $db->single()['total'] ?? 0;
+// // Sudah diterima (final)
+// $db->query("
+//     SELECT COUNT(*) AS total
+//     FROM peminjaman
+//     WHERE status = 'diterima'
+// ");
+// $approvedCount = $db->single()['total'] ?? 0;
 
-// Total pengajuan yang ditangani Warek
-$totalCount = $pendingCount + $approvedCount;
+// // Total pengajuan yang ditangani Warek
+// $totalCount = $pendingCount + $approvedCount;
 
 
-$db->query("
-    SELECT
-        p.peminjaman_id,
-        p.tanggal_mulai,
-        p.tanggal_selesai,
-        p.keperluan,
-        p.status,
-        p.created_at,
-        r.nama_ruang,
-        u.nama AS peminjam_nama
-    FROM peminjaman p
-    JOIN ruang r ON p.ruang_id = r.ruang_id
-    JOIN users u ON p.user_id = u.user_id
-    WHERE p.status = 'diterima'
-    ORDER BY p.created_at DESC
-");
-$historyData = $db->resultSet();
+// $db->query("
+//     SELECT
+//         p.peminjaman_id,
+//         p.tanggal_mulai,
+//         p.tanggal_selesai,
+//         p.keperluan,
+//         p.status,
+//         p.created_at,
+//         r.nama_ruang,
+//         u.nama AS peminjam_nama
+//     FROM peminjaman p
+//     JOIN ruang r ON p.ruang_id = r.ruang_id
+//     JOIN users u ON p.user_id = u.user_id
+//     WHERE p.status = 'diterima'
+//     ORDER BY p.created_at DESC
+// ");
+// $historyData = $db->resultSet();
 
-// Nama Warek
-$namaWarek = $_SESSION['nama'] ?? 'Warek';
+// // Nama Warek
+// $namaWarek = $_SESSION['nama'] ?? 'Warek';
 ?>
 
 <!DOCTYPE html>
@@ -69,7 +69,7 @@ $namaWarek = $_SESSION['nama'] ?? 'Warek';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Warek - MyRoom</title>
-    <link rel="stylesheet" href="../../../public/assets/css/warek_dashboard.css">
+    <link rel="stylesheet" href="<?= BASEURL; ?>/assets/css/warek_dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
