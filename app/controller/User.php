@@ -14,43 +14,51 @@ class User extends Controller
         $this->view('admin/manajemen_user', $data);
     }
 
-    public function tambah()
+    // FUNGSI BARU UNTUK MENANGANI FORM (TAMBAH & EDIT)
+    public function simpan()
     {
         if ($_SESSION['user']['role'] !== 'admin') {
             header("Location: " . BASEURL . "/home");
             exit;
         }
 
-        $data = [
-            'nama'      => $_POST['nama'],
-            'username'  => $_POST['username'],
-            'password'  => $_POST['password'],
-            'role'      => $_POST['role']    // admin bisa set role: admin/peminjam/warek
-        ];
+        // Cek apakah ini Edit (punya ID) atau Tambah (tidak punya ID)
+        if (!empty($_POST['id'])) {
+            // --- LOGIC EDIT ---
+            $data = [
+                'id'        => $_POST['id'],
+                'nama'      => $_POST['nama'],
+                'email'     => $_POST['email'], // PERBAIKAN: username diganti email
+                'role'      => $_POST['role'],
+            ];
 
-        $this->model("User_model")->add($data);
-        header("Location:" . BASEURL . "/user");
-    }
+            // Hanya update password jika diisi
+            if (!empty($_POST['password'])) {
+                $data['password'] = $_POST['password'];
+            }
 
-    public function edit()
-    {
-        if ($_SESSION['user']['role'] !== 'admin') {
-            header("Location: " . BASEURL . "/home");
-            exit;
+            if ($this->model("User_model")->edit($data) > 0) {
+                // Redirect dengan pesan sukses (status=edited)
+                header("Location:" . BASEURL . "/user?status=edited");
+                exit;
+            }
+        } else {
+            // --- LOGIC TAMBAH ---
+            $data = [
+                'nama'      => $_POST['nama'],
+                'email'     => $_POST['email'], // PERBAIKAN: username diganti email
+                'password'  => $_POST['password'],
+                'role'      => $_POST['role']
+            ];
+
+            if ($this->model("User_model")->add($data) > 0) {
+                // Redirect dengan pesan sukses (status=added)
+                header("Location:" . BASEURL . "/user?status=added");
+                exit;
+            }
         }
 
-        $data = [
-            'id'        => $_POST['id'],
-            'nama'      => $_POST['nama'],
-            'username'  => $_POST['username'],
-            'role'      => $_POST['role'],
-        ];
-
-        if (!empty($_POST['password'])) {
-            $data['password'] = $_POST['password']; // update password jika diisi
-        }
-
-        $this->model("User_model")->edit($data);
+        // Jika gagal atau tidak ada perubahan
         header("Location:" . BASEURL . "/user");
     }
 
@@ -61,8 +69,11 @@ class User extends Controller
             exit;
         }
 
-        $this->model("User_model")->delete($id);
-        header("Location:" . BASEURL . "/user");
+        if ($this->model("User_model")->delete($id) > 0) {
+            header("Location:" . BASEURL . "/user?status=deleted");
+        } else {
+            header("Location:" . BASEURL . "/user");
+        }
     }
 
     // Optional: Profil User (untuk peminjam)
@@ -80,7 +91,7 @@ class User extends Controller
         $data = [
             'id'       => $id,
             'nama'     => $_POST['nama'],
-            'username' => $_POST['username']
+            'email'    => $_POST['email'] // Sesuaikan juga disini jika perlu
         ];
 
         if (!empty($_POST['password'])) {
