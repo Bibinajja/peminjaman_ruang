@@ -25,13 +25,32 @@ class Peminjam extends Controller
     }
 
 
-    public function cek_ketersediaan()
-    {
-        $data['judul'] = 'Cek Ketersediaan Ruang';
-        $data['ruangan'] = $this->model('Ruang_model')->getAll();
-        $this->view('peminjam/cek_ketersediaan', $data);
+public function cek_ketersediaan()
+{
+    $today = date('Y-m-d'); // Mengambil tanggal hari ini dari server
+    
+    // AMATI & TIRU: Ambil tanggal dari URL, jika tidak ada atau lebih kecil dari hari ini, reset ke $today
+    $tanggal = $_GET['tanggal'] ?? $today;
+    if ($tanggal < $today) {
+        $tanggal = $today;
     }
 
+    $lokasi  = $_GET['lokasi'] ?? '';
+    $jenis   = $_GET['jenis'] ?? '';
+    $search  = $_GET['search'] ?? '';
+
+    $data['ruangan'] = $this->model('Ruang_model')->getFilteredRuangan($lokasi, $jenis, $search, $tanggal);
+
+    // Kirim variabel ke view
+    $data['tanggal'] = $tanggal;
+    $data['today']   = $today; // Kirim hari ini untuk atribut 'min' di HTML
+    $data['lokasi']  = $lokasi;
+    $data['jenis']   = $jenis;
+    $data['search']  = $search;
+    $data['judul']   = 'Cek Ketersediaan Ruang';
+
+    $this->view('peminjam/cek_ketersediaan', $data);
+}
     public function form_peminjaman()
     {
         $ruang_id = $_GET['ruang_id'] ?? '';
@@ -55,27 +74,67 @@ class Peminjam extends Controller
 
 
     public function peminjaman_process()
-    {
-        $data = [
-            'user_id'         => $_SESSION['user']['user_id'],
-            'ruang_id'        => $_POST['ruang_id'],
-            'tanggal_mulai'   => $_POST['tanggal_mulai'] . ' ' . $_POST['jam_mulai'],
-            'tanggal_selesai' => $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'],
-            'keperluan'       => $_POST['keperluan'],
-            'status'          => 'pending'
-        ];
+{
+    // Cek login & role sudah di __construct()
 
-        $this->model('Peminjaman_model')->add($data);
-
-        header("Location: " . BASEURL . "/peminjam/riwayat");
-        exit;
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: ' . BASEURL . '/peminjam');
+        exit();
     }
+
+    // Ambil data dari form
+  // Di dalam Peminjam.php -> peminjaman_process
+$data = [
+    'user_id'         => $_SESSION['user']['user_id'],
+    'ruang_id'        => $_POST['ruang_id'],
+    'nama_peminjam'   => trim($_POST['nama_peminjam']),
+    'tanggal_mulai'   => $_POST['tanggal_mulai'] . ' ' . $_POST['jam_mulai'] . ':00',
+    'tanggal_selesai' => $_POST['tanggal_selesai'] . ' ' . $_POST['jam_selesai'] . ':00',
+    'keperluan'       => trim($_POST['keperluan']),
+    'status'          => 'pending'
+];
+
+    // Validasi sederhana
+    if (empty($data['ruang_id']) || empty($data['tanggal_mulai']) || empty($data['tanggal_selesai']) || empty($data['keperluan'])) {
+        // Kalau ada yang kosong, redirect kembali dengan pesan error (bisa pakai flash message)
+        header('Location: ' . BASEURL . '/peminjam/form_peminjaman?error=1');
+        exit();
+    }
+
+    // Cek konflik jadwal (opsional tapi penting)
+    $konflik = $this->model('Peminjaman_model')->cekKonflik(
+        $data['ruang_id'],
+        $data['tanggal_mulai'],
+        $data['tanggal_selesai']
+    );
+
+    if ($konflik) {
+        header('Location: ' . BASEURL . '/peminjam/form_peminjaman?ruang_id=' . $data['ruang_id'] . '&error=konflik');
+        exit();
+    }
+
+    // Insert ke database
+    $result = $this->model('Peminjaman_model')->add($data);
+
+    if ($result) {
+        // Sukses → redirect ke riwayat
+        header('Location: ' . BASEURL . '/peminjam/riwayat');
+        exit();
+    } else {
+        // Gagal
+        header('Location: ' . BASEURL . '/peminjam/form_peminjaman?error=gagal');
+        exit();
+    }
+}
 
 
     public function riwayat()
     {
-        $data = $this->model("Peminjaman_model")->getByUser($_SESSION['user']['id']);
-        $this->view('peminjam/riwayat_peminjaman', $data);
+     $data['riwayat'] = $this->model("Peminjaman_model")->getByUser($_SESSION['user']['user_id']);
+    
+    $data['judul'] = 'Riwayat Peminjaman';
+    
+    $this->view('peminjam/riwayat_peminjaman', $data);
     }
 
     public function form_pembatalan($id)

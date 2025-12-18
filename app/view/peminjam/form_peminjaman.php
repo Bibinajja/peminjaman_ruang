@@ -61,8 +61,14 @@ $ruangDipilih = $data['ruangDipilih'] ?? null;
                 </svg>
                 Formulir Peminjaman Ruangan
             </h2>
+<?php if (isset($_GET['error']) && $_GET['error'] === 'konflik'): ?>
+                <div class="alert alert-danger">
+                    <strong>Maaf!</strong> Ruangan sudah dipesan pada waktu tersebut. Silakan pilih waktu/ruang lain.
+                </div>
+            <?php endif; ?>
 
             <form action="<?= BASEURL ?>/peminjam/peminjaman_process" method="POST"> 
+                </form>
                 <!-- Hidden input untuk ruang_id (penting untuk proses) -->
                 <input type="hidden" name="ruang_id" value="<?= htmlspecialchars($ruang_id) ?>">
 
@@ -70,30 +76,28 @@ $ruangDipilih = $data['ruangDipilih'] ?? null;
                     <label for="namaPeminjam" class="form-label">Nama Peminjam</label>
                     <input type="text" class="form-control" id="namaPeminjam" name="nama_peminjam" placeholder="Masukkan nama lengkap Anda" required>
                 </div>
+<div class="mb-3">
+    <label for="namaRuang" class="form-label">Nama Ruangan</label>
+    <select class="form-select" id="namaRuang" name="ruang_id" required>
+        <option value="" disabled <?= $ruang_id === '' ? 'selected' : '' ?>>Pilih Ruangan...</option>
+        <?php foreach ($daftar_ruangan as $ruang): ?>
+            <option value="<?= htmlspecialchars($ruang['ruang_id']) ?>" 
+                <?= ($ruang['ruang_id'] == $ruang_id) ? 'selected' : '' ?>>
+                <?= htmlspecialchars($ruang['nama_ruang']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
 
-                <div class="mb-3">
-                    <label for="namaRuang" class="form-label">Nama Ruangan</label>
-                    <select name="ruang_id" class="form-select" required>
-                        <option value="">Pilih Ruangan</option>
-                        <?php foreach ($ruangan as $r): ?>
-                            <option value="<?= $r['ruang_id'] ?>"
-                                <?= ($ruang_id == $r['ruang_id']) ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($r['nama_ruang']) ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Waktu Mulai</label>
-                        <div class="input-group">
-                            <input type="date" class="form-control" id="tanggalMulai" name="tanggal_mulai"
-                                value="<?= $tanggal ?>" required>
-                            <input type="time" class="form-control" id="jamMulai" name="jam_mulai" required>
-                        </div>
-                    </div>
+<div class="col-md-6">
+    <label class="form-label">Waktu Mulai</label>
+    <div class="input-group">
+        <input type="date" class="form-control" id="tanggalMulai" name="tanggal_mulai" 
+               value="<?= htmlspecialchars($tanggal_cek) ?>" 
+               min="<?= date('Y-m-d') ?>" required>
+        <input type="time" class="form-control" id="jamMulai" name="jam_mulai" required>
+    </div>
+</div>
                     <div class="col-md-6">
                         <label class="form-label">Waktu Selesai</label>
                         <div class="input-group">

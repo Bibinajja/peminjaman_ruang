@@ -36,7 +36,7 @@ $historyData   = $data['historyData'] ?? [];
                         <i class="fas fa-chevron-down"></i>
                     </button>
                     <div class="dropdown-menu" id="dropdownMenu">
-                        <a href="profile.php" class="dropdown-item">
+                        <a href="<?= BASEURL ?>profil" class="dropdown-item">
                             <i class="fas fa-user"></i>
                             <span>Lihat Profil</span>
                         </a>

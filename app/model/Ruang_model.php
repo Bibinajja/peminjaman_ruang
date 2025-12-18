@@ -54,33 +54,29 @@ class Ruang_model
         return $ruangan;
     }
 
-    private function cekKetersediaan($ruang_id, $tanggal)
-    {
-        $this->db->query("
+   private function cekKetersediaan($ruang_id, $tanggal)
+{
+    // MODIFIKASI: Mencari peminjaman yang tumpang tindih dengan TANGGAL tersebut
+    // Kita cek apakah ada peminjaman yang 'aktif' pada hari itu (00:00:00 s/d 23:59:59)
+    $tgl_mulai = $tanggal . ' 00:00:00';
+    $tgl_selesai = $tanggal . ' 23:59:59';
+
+    $this->db->query("
         SELECT COUNT(*) as total FROM peminjaman
         WHERE ruang_id = :id
-        AND tanggal_mulai <= :tgl
-        AND tanggal_selesai >= :tgl
-        AND status IN ('pending','disetujui','konfirmasi_admin','konfirmasi_warek','diterima_admin')
+        AND (
+            (tanggal_mulai BETWEEN :tgl_awal AND :tgl_akhir) OR
+            (tanggal_selesai BETWEEN :tgl_awal AND :tgl_akhir) OR
+            (tanggal_mulai <= :tgl_awal AND tanggal_selesai >= :tgl_akhir)
+        )
+        AND status IN ('pending','disetujui','konfirmasi_admin','konfirmasi_warek')
     ");
-        $this->db->bind(':id', $ruang_id);
-        $this->db->bind(':tgl', $tanggal);
+    $this->db->bind(':id', $ruang_id);
+    $this->db->bind(':tgl_awal', $tgl_mulai);
+    $this->db->bind(':tgl_akhir', $tgl_selesai);
 
-        return $this->db->single()['total'] > 0;
-    }
-
-    public function getAktif()
-    {
-        $this->db->query("SELECT ruang_id, nama_ruang FROM ruang WHERE status = 'aktif' ORDER BY nama_ruang ASC");
-        return $this->db->resultSet();
-    }
-
-    public function getById($id)
-    {
-        $this->db->query("SELECT * FROM ruang WHERE ruang_id = :id");
-        $this->db->bind(':id', $id);
-        return $this->db->single();
-    }
+    return $this->db->single()['total'] > 0;
+}
 
 
    public function add($data)

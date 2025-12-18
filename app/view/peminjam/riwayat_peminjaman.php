@@ -1,36 +1,9 @@
-<?php
-session_start();
-require_once '../../core/Database.php';
-$db = new Database();
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../login.php");
-    exit();
-}
-
-$user_id = $_SESSION['user_id'];
-
-try {
-    $db->query("
-        SELECT p.*, r.nama_ruang 
-        FROM peminjaman p 
-        JOIN ruang r ON p.ruang_id = r.ruang_id 
-        WHERE p.user_id = :user_id 
-        ORDER BY p.created_at DESC
-    ");
-    $db->bind(':user_id', $user_id);
-    $data = $db->resultSet();
-} catch (Exception $e) {
-    $data = [];
-}
-?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Peminjaman Ruang</title>
+    <title><?= $data['judul'] ?? 'Riwayat Peminjaman' ?> - MyRoom</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -54,7 +27,6 @@ try {
         .history-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(0,0,0,0.2); }
         .icon { width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #1e40af);
                 color: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .badge-status { padding: 6px 14px; border-radius: 20px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -62,21 +34,15 @@ try {
 <div class="container">
     <h3 class="page-title">📜 Riwayat Peminjaman Ruang</h3>
 
-    <!-- Popup Pesan Sukses -->
-    <?php if (isset($_SESSION['msg'])): 
-        list($type, $pesan) = explode('|', $_SESSION['msg'], 2);
-    ?>
-        <script>alert("<?= $pesan ?>");</script>
-        <?php unset($_SESSION['msg']); ?>
-    <?php endif; ?>
-
-    <?php if (!empty($data)): ?>
-        <?php foreach ($data as $row): ?>
+    <?php if (!empty($data['riwayat'])): ?>
+        <?php foreach ($data['riwayat'] as $row): ?>
             <?php
             $status = $row['status'] ?? 'pending';
-            $badge = $status === 'disetujui' ? 'bg-success' : 
+            // Menyesuaikan warna badge berdasarkan status di database
+            $badge = ($status === 'disetujui' || $status === 'konfirmasi_warek') ? 'bg-success' : 
                     ($status === 'ditolak' ? 'bg-danger' : 'bg-warning text-dark');
-            $statusText = $status === 'disetujui' ? 'Disetujui' : 
+            
+            $statusText = ($status === 'disetujui' || $status === 'konfirmasi_warek') ? 'Disetujui' : 
                          ($status === 'ditolak' ? 'Ditolak' : 'Menunggu Konfirmasi');
             ?>
             <div class="history-card">
@@ -92,9 +58,19 @@ try {
                     <span class="badge <?= $badge ?>"><?= $statusText ?></span>
                 </div>
                 <hr>
-                <p class="mb-1"><strong>Pemohon:</strong> <?= htmlspecialchars($row['nama_peminjam']) ?></p>
-                <p class="mb-0"><strong>Keperluan:</strong> <?= htmlspecialchars($row['keperluan']) ?></p>
-            </div>
+                <p class="mb-1"><strong>Pemohon:</strong> <?= htmlspecialchars($row['nama_peminjam'] ?? 'Tidak ada') ?></p>
+                <p class="mb-2"><strong>Keperluan:</strong> <?= htmlspecialchars($row['keperluan']) ?></p>
+                
+                <?php if ($status === 'pending' || $status === 'menunggu konfirmasi'): ?>
+                    <div class="mt-3 text-end">
+                        <a href="<?= BASEURL ?>/peminjam/form_pembatalan/<?= $row['peminjaman_id'] ?>" 
+                           class="btn btn-outline-danger btn-sm" 
+                           onclick="return confirm('Apakah Anda yakin ingin membatalkan peminjaman ini?')">
+                           ❌ Batalkan Peminjaman
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div> 
         <?php endforeach; ?>
     <?php else: ?>
         <div class="alert alert-light text-center p-5">
