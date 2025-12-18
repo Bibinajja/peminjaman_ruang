@@ -771,3 +771,20 @@ body {
         transform: rotate(360deg);
     }
 }
+
+.filter-item {
+    display: block;
+    padding: 10px;
+    margin: 8px 0;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+
+.filter-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.filter-item input[type="radio"] {
+    margin-right: 10px;
+}

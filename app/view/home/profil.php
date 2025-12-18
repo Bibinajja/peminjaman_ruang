@@ -1,97 +1,43 @@
-<?php
-// session_start();
-// // require_once '../../core/Database.php';
-
-// // Cek apakah user sudah login
-// if (!isset($_SESSION['user_id'])) {
-//     header('Location: login.php');
-//     exit();
-// }
-
-$db = new Database();
-$user_id = $_SESSION['user_id'];
-
-// Ambil data user dari database
-$db->query("SELECT user_id, nama, email, role FROM users WHERE user_id = :user_id");
-$db->bind(':user_id', $user_id);
-$user = $db->single();
-
-// Proses update profil
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
-    $nama = $_POST['nama'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-
-    if (!empty($password)) {
-        // Update dengan password baru
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-        $db->query("UPDATE users SET nama = :nama, email = :email, password = :password WHERE user_id = :user_id");
-        $db->bind(':nama', $nama);
-        $db->bind(':email', $email);
-        $db->bind(':password', $hashed_password);
-        $db->bind(':user_id', $user_id);
-    } else {
-        // Update tanpa mengubah password
-        $db->query("UPDATE users SET nama = :nama, email = :email WHERE user_id = :user_id");
-        $db->bind(':nama', $nama);
-        $db->bind(':email', $email);
-        $db->bind(':user_id', $user_id);
-    }
-
-    $db->execute();
-
-    if ($db->rowCount() > 0) {
-        $success_message = "Profil berhasil diperbarui!";
-        // Refresh data user
-        $db->query("SELECT user_id, nama, email, role FROM users WHERE user_id = :user_id");
-        $db->bind(':user_id', $user_id);
-        $user = $db->single();
-    } else {
-        $error_message = "Tidak ada perubahan data atau gagal memperbarui profil!";
-    }
-}
-?>
-
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Pengguna - MyRoom</title>
+    <title><?= $data['title'] ?? 'Profil' ?> - MyRoom</title>
     <link rel="stylesheet" href="<?= BASEURL ?>/assets/css/profil.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-
 <body>
 
     <nav class="navbar">
-        <div class="nav-brand">MyRoom</div>
-        <div class="nav-menu">
-            <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] == 'admin'): ?>
-                <a href="<?= BASEURL ?>/admin" class="nav-link">
-                    <i class="fas fa-arrow-left"></i> Dashboard
-                </a>
-            <?php else: ?>
-                <a href="<?= BASEURL ?>/home" class="nav-link">
-                    <i class="fas fa-home"></i> Home
-                </a>
-            <?php endif; ?>
-
-            <a href="<?= BASEURL ?>/admin/logout" class="nav-link">Logout</a>
-        </div>
-    </nav>
-
-    <div class="container">
-
-        <?php if (isset($_GET['status'])): ?>
-            <?php if ($_GET['status'] == 'success'): ?>
-                <div class="alert alert-success">Data berhasil diperbarui!</div>
-            <?php elseif ($_GET['status'] == 'failed'): ?>
-                <div class="alert alert-error">Gagal memperbarui data.</div>
-            <?php endif; ?>
+    <div class="nav-brand">MyRoom</div>
+    <div class="nav-menu">
+        <!-- Tombol Kembali ke Dashboard sesuai Role -->
+        <?php if ($data['user']['role'] === 'admin'): ?>
+            <a href="<?= BASEURL ?>/admin" class="nav-link">
+                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard Admin
+            </a>
+        <?php elseif ($data['user']['role'] === 'peminjam'): ?>
+            <a href="<?= BASEURL ?>/peminjam" class="nav-link">
+                <i class="fas fa-home"></i> Kembali ke Dashboard Peminjam
+            </a>
+        <?php elseif ($data['user']['role'] === 'warek'): ?>
+            <a href="<?= BASEURL ?>/warek" class="nav-link">
+                <i class="fas fa-tachometer-alt"></i> Kembali ke Dashboard Warek
+            </a>
+        <?php else: ?>
+            <a href="<?= BASEURL ?>/home" class="nav-link">
+                <i class="fas fa-home"></i> Kembali ke Home
+            </a>
         <?php endif; ?>
 
+        <!-- Tombol Logout tetap ada -->
+        <a href="<?= BASEURL ?>/home/logout" class="nav-link">Logout</a>
+    </div>
+</nav>
+
+    <div class="container">
+   
         <div class="profile-header">
             <div class="avatar">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -101,32 +47,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
                 </svg>
             </div>
             <div class="profile-name-section">
-                <div class="profile-label"><?= isset($data['user']['role']) ? strtoupper($data['user']['role']) : 'USER'; ?></div>
-                <div class="profile-name"><?= htmlspecialchars($data['user']['nama']); ?></div>
+                <div class="profile-label"><?= strtoupper($data['user']['role'] ?? 'USER') ?></div>
+                <div class="profile-name"><?= htmlspecialchars($data['user']['nama'] ?? '') ?></div>
             </div>
         </div>
 
         <div class="info-section">
             <h2 class="section-title">Informasi Personal</h2>
 
-            <form action="<?= BASEURL ?>/user/update_profil" method="POST" id="profileForm">
+            <form action="<?= BASEURL ?>/profil/update" method="POST" id="profileForm">
 
                 <div class="form-group">
                     <label for="nama">Nama Lengkap</label>
                     <input type="text" id="nama" name="nama" class="form-input"
-                        value="<?= htmlspecialchars($data['user']['nama']); ?>" disabled required>
+                           value="<?= htmlspecialchars($data['user']['nama'] ?? '') ?>" disabled required>
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" class="form-input"
-                        value="<?= htmlspecialchars($data['user']['email']); ?>" disabled required>
+                           value="<?= htmlspecialchars($data['user']['email'] ?? '') ?>" disabled required>
                 </div>
 
                 <div class="form-group" id="passwordGroup" style="display: none;">
                     <label for="password">Password Baru <small>(Kosongkan jika tidak ubah)</small></label>
                     <input type="password" id="password" name="password" class="form-input"
-                        placeholder="Masukkan password baru" disabled>
+                           placeholder="Masukkan password baru" disabled>
                 </div>
 
                 <div class="form-actions">
@@ -148,49 +94,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_profile'])) {
         const cancelBtn = document.getElementById('cancelBtn');
         const inputs = document.querySelectorAll('.form-input');
         const passwordGroup = document.getElementById('passwordGroup');
-        const passwordInput = document.getElementById('password');
 
-        // Simpan nilai asli untuk tombol Batal
-        let originalValues = {};
+        let original = {};
 
-        editBtn.addEventListener('click', () => {
-            // Simpan nilai saat ini sebelum diedit
-            inputs.forEach(input => {
-                if (input.id !== 'password') {
-                    originalValues[input.id] = input.value;
-                }
-                input.removeAttribute('disabled');
+        editBtn.onclick = () => {
+            inputs.forEach(i => {
+                if (i.id !== 'password') original[i.id] = i.value;
+                i.disabled = false;
             });
-
-            // Tampilkan field password & tombol aksi
             passwordGroup.style.display = 'block';
-            passwordInput.removeAttribute('disabled');
-
             editBtn.style.display = 'none';
             saveBtn.style.display = 'inline-block';
             cancelBtn.style.display = 'inline-block';
-        });
+        };
 
-        cancelBtn.addEventListener('click', () => {
-            // Kembalikan nilai ke semula
-            inputs.forEach(input => {
-                if (input.id !== 'password') {
-                    input.value = originalValues[input.id];
-                }
-                input.setAttribute('disabled', true);
+        cancelBtn.onclick = () => {
+            inputs.forEach(i => {
+                if (i.id !== 'password') i.value = original[i.id] || '';
+                i.disabled = true;
             });
-
-            // Sembunyikan field password & reset isinya
+            document.getElementById('password').value = '';
             passwordGroup.style.display = 'none';
-            passwordInput.setAttribute('disabled', true);
-            passwordInput.value = '';
-
-            // Kembalikan tombol ke kondisi awal
             editBtn.style.display = 'inline-block';
             saveBtn.style.display = 'none';
             cancelBtn.style.display = 'none';
-        });
+        };
     </script>
 </body>
-
 </html>

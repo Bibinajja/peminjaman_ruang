@@ -202,4 +202,35 @@ public function rejectPengembalian($id, $reason)
     return $this->db->rowCount();
 }
 
+public function getByUser($user_id)
+{
+    $this->db->query("
+        SELECT p.*, r.nama_ruang, u.nama AS nama_peminjam 
+        FROM peminjaman p 
+        JOIN ruang r ON p.ruang_id = r.ruang_id 
+        JOIN users u ON p.user_id = u.user_id
+        WHERE p.user_id = :user_id 
+        ORDER BY p.peminjaman_id DESC
+    ");
+    $this->db->bind(':user_id', $user_id);
+    return $this->db->resultSet();
+}
+
+public function cekKonflik($ruang_id, $mulai, $selesai)
+{
+    $this->db->query("
+        SELECT COUNT(*) as total FROM peminjaman
+        WHERE ruang_id = :ruang_id
+        AND status IN ('pending', 'disetujui', 'konfirmasi_admin', 'konfirmasi_warek')
+        AND (
+            (tanggal_mulai < :selesai AND tanggal_selesai > :mulai)
+        )
+    ");
+    $this->db->bind(':ruang_id', $ruang_id);
+    $this->db->bind(':mulai', $mulai);
+    $this->db->bind(':selesai', $selesai);
+    
+    $result = $this->db->single();
+    return $result['total'] > 0;
+}
 }
