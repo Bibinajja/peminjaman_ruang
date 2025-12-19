@@ -61,15 +61,15 @@ $ruangDipilih = $data['ruangDipilih'] ?? null;
                     </select>
                 </div>
 
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Waktu Mulai</label>
-                        <div class="input-group">
-                            <input type="date" class="form-control" id="tanggalMulai" name="tanggal_mulai"
-                                value="<?= $tanggal ?>" required>
-                            <input type="time" class="form-control" id="jamMulai" name="jam_mulai" required>
-                        </div>
-                    </div>
+<div class="col-md-6">
+    <label class="form-label">Waktu Mulai</label>
+    <div class="input-group">
+        <input type="date" class="form-control" id="tanggalMulai" name="tanggal_mulai" 
+               value="<?= htmlspecialchars($tanggal_cek) ?>" 
+               min="<?= date('Y-m-d') ?>" required>
+        <input type="time" class="form-control" id="jamMulai" name="jam_mulai" required>
+    </div>
+</div>
                     <div class="col-md-6">
                         <label class="form-label">Waktu Selesai</label>
                         <div class="input-group">
