@@ -1,43 +1,10 @@
 <?php
 
-
-
 $ruang_id = $data['ruang_id'] ?? '';
 $ruangan  = $data['ruangan'];
 $tanggal  = $data['tanggal'] ?? date('Y-m-d');
 $ruangDipilih = $data['ruangDipilih'] ?? null;
 
-
-
-
-
-// // Ambil parameter dari URL (dari cek_ketersediaan.php)
-// $ruang_id = $_GET['ruang_id'] ?? '';
-// $tanggal_cek = $_GET['tanggal'] ?? date('Y-m-d');
-
-// // Ambil semua ruangan dari database untuk dropdown
-// try {
-//     $db->query("SELECT ruang_id, nama_ruang FROM ruang WHERE status = 'aktif' ORDER BY nama_ruang ASC");
-//     $daftar_ruangan = $db->resultSet();
-// } catch (Exception $e) {
-//     $daftar_ruangan = [];
-//     error_log("Error loading rooms: " . $e->getMessage());
-// }
-
-// // Ambil nama ruangan yang dipilih (jika ada)
-// $nama_ruangan_terpilih = '';
-// if ($ruang_id !== '') {
-//     try {
-//         $db->query("SELECT nama_ruang FROM ruang WHERE ruang_id = :id");
-//         $db->bind(':id', $ruang_id);
-//         $result = $db->single();
-//         if ($result) {
-//             $nama_ruangan_terpilih = $result['nama_ruang'];
-//         }
-//     } catch (Exception $e) {
-//         // Jika ruang tidak ditemukan, kosongkan
-//     }
-// }
 ?>
 
 <!DOCTYPE html>
@@ -62,9 +29,19 @@ $ruangDipilih = $data['ruangDipilih'] ?? null;
                 Formulir Peminjaman Ruangan
             </h2>
 
-            <form action="<?= BASEURL ?>/peminjam/peminjaman_process" method="POST"> 
-                <!-- Hidden input untuk ruang_id (penting untuk proses) -->
-                <input type="hidden" name="ruang_id" value="<?= htmlspecialchars($ruang_id) ?>">
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'konflik'): ?>
+                <div class="alert alert-danger">
+                    <strong>Maaf!</strong> Ruangan sudah dipesan pada waktu tersebut. Silakan pilih waktu/ruang lain.
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['error']) && $_GET['error'] === 'gagal'): ?>
+                <div class="alert alert-danger">
+                    <strong>Gagal!</strong> Terjadi kesalahan saat menyimpan data. Silakan coba lagi.
+                </div>
+            <?php endif; ?>
+
+            <form action="<?= BASEURL ?>/peminjam/peminjaman_process" method="POST">
 
                 <div class="mb-3">
                     <label for="namaPeminjam" class="form-label">Nama Peminjam</label>
@@ -82,7 +59,6 @@ $ruangDipilih = $data['ruangDipilih'] ?? null;
                             </option>
                         <?php endforeach; ?>
                     </select>
-
                 </div>
 
                 <div class="row mb-3">
@@ -123,10 +99,6 @@ $ruangDipilih = $data['ruangDipilih'] ?? null;
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Optional: Validasi sederhana agar tanggal selesai >= mulai -->
-    <!-- <script src="<?= BASEURL ?>/assets/js/form_peminjaman.js"></script> -->
-
 
 </body>
 

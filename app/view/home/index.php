@@ -23,7 +23,7 @@
                 <a href="#team" class="nav-link">Team</a>
                 <a href="#contact" class="nav-link">Contact</a>
             </div>
-            <a href="<?= BASEURL ?>/home/profil.php" class="nav-profile">
+            <a href="<?= BASEURL ?>profil" class="nav-profile">
                 <i class="fas fa-user-circle"></i>
             </a>
             <div class="nav-toggle" id="navToggle">
@@ -70,9 +70,9 @@
                     Sebelum Anda mengeklik tombol "Pinjam Ruangan", pastikan Anda telah memeriksa ketersediaan jadwal secara real-time melalui kalender interaktif kami untuk menghindari double booking; proses di MyRoom sepenuhnya paperless, cepat, dan status peminjaman akan diinformasikan secara otomatis melalui notifikasi instan.
                 </p>
                 <button class="btn btn-primary"
-                    onclick="window.location.href='<?= BASEURL; ?>/peminjam/ketersediaan_ruang'">
-                    <i class="fas fa-door-open"></i> Cek Ketersediaan Ruang
-                </button>
+    onclick="window.location.href='<?= BASEURL; ?>/peminjam/cek_ketersediaan'">
+    <i class="fas fa-door-open"></i> Cek Ketersediaan Ruang
+</button>
 
             </div>
         </div>
